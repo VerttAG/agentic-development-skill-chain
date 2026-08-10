@@ -25,6 +25,7 @@ Step  Skill                  Output
   2   requirements-engineer  specs/PROJ-<X>-<theme>/2_PRDs/PROJ-<X>-PRD-<Y>-<desc>.md
  2b   handoff-package (opt)  specs/PROJ-<X>-<theme>/2b_handoff/YYYY-MM-DD-handoff*/ standalone package (+ zip) — discovery track only
  2c   review-reconcile (opt) specs/PROJ-<X>-<theme>/2_PRDs/<prd>-review-decisions.md + review-changelog.md — resolve PRD review gaps
+ 2d   release-scope (opt)    specs/_releases/R<N>-<theme>/R<N>-scope.md + R<N>-gaps.md + R<N>-forward-compat.md — cross-PROJ, phased roadmaps only
   3   architecture           specs/PROJ-<X>-<theme>/3-4_plan/PROJ-<X>-architecture.md
   4   writing-plans          specs/PROJ-<X>-<theme>/3-4_plan/PROJ-<X>-wave-<N>-plan.md (per wave)
  4a   checkpoint (CP1)       specs/PROJ-<X>-<theme>/decisions.md + state.json sealed CP1:approved
@@ -37,7 +38,7 @@ Step  Skill                  Output
 
 **Reading the numbers.** A bare number is a main-line step. A letter suffix
 is a variant at the same stage — `1b`–`1e` run in sequence inside the UI
-branch, `2b`/`2c` are optional forks, `0a`/`0b`/`0c` are alternative entry
+branch, `2b`/`2c`/`2d` are optional forks, `0a`/`0b`/`0c` are alternative entry
 paths (0a+0c for a new build, 0b for an existing codebase), and `4a`/`4b`
 are mandatory despite the letter. A skill with no number is not a step at
 all: `cross-review` is a mechanism invoked inside P7, never routed to
@@ -154,6 +155,7 @@ Scan `specs/PROJ-*/` folders to find the latest PROJ. For each PROJ, check:
    - Concept contains `Concept Sync Log` / `Handoff Readiness` → step 1e done.
 6. `2_PRDs/PROJ-<X>-PRD-*.md` — at least one PRD? → step 2 done. If `Handoff Readiness` is `discovery (Linear handoff)`, this PROJ is on the discovery track and is **complete at step 2** — do not recommend architecture. Optionally suggest `handoff-package` (2b) for an external standalone deliverable.
    - `2b_handoff/*/README.md` exists → step 2b done; the latest dated handoff package is assembled.
+6b. **Cross-PROJ release check.** If a phase-tagged feature inventory exists (for example `specs/_drafts/*inventory*.md`, `specs/_platform-baseline/*inventory*.md`, or a `*triage*.md` with a phase or wave column), its current phase spans more than one PROJ, and `specs/_releases/` has no folder for that phase → recommend `release-scope` (2d) before architecture. `specs/_releases/R<N>-*/R<N>-scope.md` exists → step 2d done. Skip this check when only one PROJ is involved; its PRD manifest already covers that case.
 7. `3-4_plan/PROJ-<X>-architecture.md` exists → step 3 done
 8. `3-4_plan/PROJ-<X>-wave-*-plan.md` files exist → step 4 done (count waves by file glob)
 8b. `state.json` exists → framework run; read `.phase` + `.status` via `bash scripts/state.sh get <X> <theme> '.phase + ":" + .status'`: `CP1:approved` → step 4a done; `P0:done` → step 4b done; `P5:*`–`P8:*` → that phase is running/done; `*:blocked` → run parked, point to `5_progress/stop-report.md`
@@ -208,6 +210,12 @@ Based on detected state, tell the user:
 
 **PRDs exist, no architecture:**
 > "PRDs in `specs/PROJ-<X>-<theme>/2_PRDs/`. Next step: use **architecture** (3) to write the PROJ-level tech design."
+
+**PRDs exist across several PROJs, phased roadmap, no release slice:**
+> "A phase-tagged inventory covers `PROJ-<A>…<N>`, and Phase <N> spans several of them, but `specs/_releases/` has no slice for it. Next step: use **release-scope** (2d) before architecture to map the phase to its user stories, exclusions, gaps, and forward-compatibility obligations."
+
+**Release slice exists, no architecture:**
+> "The release slice is at `specs/_releases/R<N>-<theme>/`. Read `R<N>-gaps.md` first and close blocking PRD gaps, then run **architecture** (3) once across the release slice."
 
 **Architecture file exists, no wave plans:**
 > "Architecture at `specs/PROJ-<X>-<theme>/3-4_plan/PROJ-<X>-architecture.md`. Next step: use **writing-plans** (4) to create per-wave implementation plans."
@@ -274,6 +282,7 @@ If the user asks "what does each step do?":
 | 1e | concept-sync (optional) | Reconcile iterated mockup changes back into the concept; set delivery track (full chain vs. Linear handoff) |
 | 2 | requirements-engineer | PRDs from concept + approved mockups + UI handoff: user stories, acceptance criteria, edge cases; Linear handoff mode produces developer-ready PRDs |
 | 2b | handoff-package (optional) | Standalone, zippable package for external UI/UX experts and developers: README index, single-source-of-truth scope/decisions, role-split handoffs, copied mockups |
+| 2d | release-scope (optional) | Cross-PROJ release slice from a phased inventory: feature→US index, exclusions, gaps, and forward-compatibility seams |
 | 3 | architecture | PROJ-level tech design covering all PRDs — data model, cross-cutting decisions |
 | 4 | writing-plans | Wave-based implementation plans; propagates UI handoff into frontend/full-stack tasks |
 | 4a | checkpoint | Human checkpoints as structured reconcile loops: CP1 (arch + plans → decision log → seal state.json) and CP2 (PR comments, via delivery) |

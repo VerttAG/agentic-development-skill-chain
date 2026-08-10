@@ -36,6 +36,7 @@ scaffold stood up, agent files written); an existing codebase goes through
 | 2 | `requirements-engineer` | PRDs: user stories, acceptance criteria, edge cases |
 | 2b | `handoff-package` (opt) | Standalone zippable package for external experts |
 | 2c | `review-reconcile` (opt) | Resolve PRD review gaps point by point |
+| 2d | `release-scope` (opt) | Cross-PROJ release slice from a phased inventory: feature→US index, exclusions, gaps, forward-compat seams |
 | 3 | `architecture` | PROJ-level tech design across all PRDs |
 | 4 | `writing-plans` | Wave-based implementation plans |
 | 4a | `checkpoint` | CP1/CP2/bootstrap as structured reconcile loops with a decision log; CP1 seals `state.json` to `CP1:approved` |

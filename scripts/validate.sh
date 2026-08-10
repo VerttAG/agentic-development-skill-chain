@@ -16,6 +16,7 @@ CORE_SKILLS=(
   1e_concept-sync
   2b_handoff-package
   2c_review-reconcile
+  2d_release-scope
   3_architecture
   4_writing-plans
   4a_checkpoint

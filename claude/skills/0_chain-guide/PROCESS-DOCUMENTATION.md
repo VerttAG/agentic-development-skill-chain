@@ -60,6 +60,7 @@ together. Product-level artifacts live outside the PROJ folder —
 | 2 | `requirements-engineer` | Required | `2_PRDs/PROJ-<X>-PRD-<Y>-*.md` |
 | 2b | `handoff-package` | External handoff | `2b_handoff/YYYY-MM-DD-handoff*/` |
 | 2c | `review-reconcile` | PRD review returned gaps | `2_PRDs/*-review-decisions.md`, `review-changelog.md` |
+| 2d | `release-scope` | A roadmap phase spans several PROJs | `specs/_releases/R<N>-<theme>/` — scope index, gaps, forward-compat register |
 | 3 | `architecture` | Required | `3-4_plan/PROJ-<X>-architecture.md` |
 | 4 | `writing-plans` | Required | `3-4_plan/PROJ-<X>-wave-<N>-plan.md` |
 | 4a | `checkpoint` | Required | `decisions.md`, `state.json` sealed `CP1:approved` |

@@ -22,6 +22,8 @@ flowchart LR
   LIN -->|developer review returns gaps| S2C[2c review-reconcile · optional]
   S2C -->|point-by-point decisions + changelog| S2
   S2C -.->|items needing engineering| MTG([Developer meeting agenda])
+  S2 --> S2D[2d release-scope · optional · cross-PROJ phased roadmap]
+  S2D --> REL([Release slice · specs/_releases])
 ```
 
 Steps 0c (bootstrap) and 3–7 (architecture, plans, executing, QA, documentation) do **not** apply on this track — there is no codebase to scaffold or build.
@@ -63,6 +65,7 @@ A discovery engagement has no codebase, so there is nothing to scaffold. Open a 
 | 2 | requirements-engineer | Produce developer-ready PRDs for the handoff |
 | 2b | handoff-package (optional) | Assemble a standalone, zippable package for an external UI/UX expert and/or developers; the chain ends here |
 | 2c | review-reconcile (optional) | When a developer/stakeholder review returns gaps on the PRDs, resolve them point by point, defer engineering items to a developer meeting, and update PRDs/concept/mockups with a handoff-facing changelog |
+| 2d | release-scope (optional) | When a roadmap phase spans several PROJs, index every in-phase feature to the user stories that deliver it, name the later-phase stories hiding inside in-scope PRDs, rank the features with no PRD behind them, and register the forward-compatibility seams. Skip it for a single PROJ — its PRD manifest already does this |
 
 ## The review-reconcile loop
 
