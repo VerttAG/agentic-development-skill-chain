@@ -29,8 +29,9 @@ scaffold stood up, agent files written); an existing codebase goes through
 | 0c | `bootstrap` | Once per project, new build: decide the stack into `docs/ARCHITECTURE.md` § Stack, run the real scaffold, verify build/test green, write root `AGENTS.md` + `CLAUDE.md` pointer |
 | 1 | `brainstorming` | Explore the idea, allocate PROJ-X, write the concept |
 | 1b | `visual-companion` (opt) | Interactive layout exploration, project mode detection |
-| 1c | `frontend-design` (opt) | Design system — tokens, component catalog, showcase page |
-| 1d | `ui-mockup` (UI req.) | HTML sitemap + per-screen mockups + implementation handoff |
+| 1c | `frontend-design` (opt) | Design system — tokens, component catalog, showcase page. **Decides** it |
+| 1c | `design-intake` (opt) | The same artifacts **extracted** from an external designer's delivery, gated by a conformance pass. Alternative to `frontend-design` — run one, not both |
+| 1d | `ui-mockup` (UI req.) | HTML sitemap + per-screen mockups + implementation handoff. Authors no mockups in design-derived mode |
 | 1e | `concept-sync` (opt) | Reconcile iterated mockups back into the concept |
 | 2 | `requirements-engineer` | PRDs: user stories, acceptance criteria, edge cases |
 | 2b | `handoff-package` (opt) | Standalone zippable package for external experts |

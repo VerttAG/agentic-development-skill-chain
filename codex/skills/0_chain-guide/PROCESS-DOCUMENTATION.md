@@ -9,6 +9,7 @@ This document is the expanded process reference for `chain-guide`. The executabl
 1   brainstorming            Create the approved feature concept
 1b  visual-companion         Explore UI shape for UI features
 1c  frontend-design          Define or extend the design language when needed
+1c  design-intake            Extract an external designer's delivery instead — run one 1c, not both
 1d  ui-mockup                Create sitemap, mockups, and UI implementation handoff
 2   requirements-engineer    Write PRDs, user stories, acceptance criteria, and edge cases
 3   architecture             Produce PROJ-level technical architecture
@@ -53,6 +54,7 @@ together. Product-level artifacts live outside the PROJ folder —
 | 1 | `brainstorming` | Required | `1_brainstorm/PROJ-<X>-concept.md` |
 | 1b | `visual-companion` | UI only | `1b_visual-companion/layout-exploration.html` and `layout-decision.md` |
 | 1c | `frontend-design` | Greenfield or hybrid UI gaps | `1c_design/design-language.md` or `design-delta.md` |
+| 1c | `design-intake` | External designer delivered the system | the same `1c_design/design-language.md`, plus `design-conformance.md` and `design-source.md` |
 | 1d | `ui-mockup` | UI only | `1d_mockups/sitemap.html`, screen mockups, `implementation-handoff.md` |
 | 1e | `concept-sync` | After mockup iterations | reconciled `1_brainstorm/PROJ-<X>-concept.md` |
 | 2 | `requirements-engineer` | Required | `2_PRDs/PROJ-<X>-PRD-<Y>-*.md` |
@@ -77,8 +79,14 @@ step anyone routes to.
 - `greenfield`: run `frontend-design`, then `ui-mockup`
 - `hybrid` with design/component gaps: run `frontend-design` lightly, then `ui-mockup`
 - `brownfield`: skip `frontend-design` and run `ui-mockup`
+- **external designer commissioned**: run `design-intake` in place of `frontend-design`, then `ui-mockup` in **design-derived** mode
 
-`ui-mockup` produces the handoff required by requirements, architecture, planning, and execution. It must identify component reuse, new component candidates, design tokens, interaction contract, demo-only mockup parts, and implementation tolerance.
+Exactly one `1c` skill runs per PROJ family. `frontend-design` decides the
+design system; `design-intake` extracts one a designer already made and gates it
+on a conformance pass against the brief's design-system contract. Running both
+produces two design systems.
+
+`ui-mockup` produces the handoff required by requirements, architecture, planning, and execution. It must identify component reuse, new component candidates, design tokens, interaction contract, demo-only mockup parts, and implementation tolerance. In **design-derived** mode it authors no screen mockups — the designer's file is the visual authority — and still produces the sitemap and the handoff, the latter carrying a `## Design Source` block.
 
 ## Decomposed PROJs
 
@@ -86,7 +94,7 @@ Brainstorming may split one broad seed into several PROJs. Downstream skills the
 
 - Each PROJ has its own concept, PRDs, architecture, plans, execution, QA, and docs.
 - Sibling PROJs are context, dependencies, or future scope.
-- Shared design language is allowed for tightly linked UI PROJ families when `frontend-design` records an `Applies To` section.
+- Shared design language is allowed for tightly linked UI PROJ families when the `1c` skill that ran records an `Applies To` section.
 - Do not absorb sibling scope into the current PROJ's PRDs or mockups unless the user explicitly asks for a combined review.
 
 ## Handoff Rules

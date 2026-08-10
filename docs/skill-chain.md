@@ -13,7 +13,9 @@ flowchart LR
   S1 --> S1B[1b visual-companion]
   S1 --> S2[2 requirements-engineer]
   S1B --> S1C[1c frontend-design]
+  S1B --> S1CI[1c design-intake · external designer]
   S1C --> S1D[1d ui-mockup]
+  S1CI --> S1D
   S1B --> S1D
   S1D -->|iterated| S1E[1e concept-sync]
   S1D --> S2
@@ -74,6 +76,7 @@ After decomposition:
 | 1 | brainstorming | Turn an idea into a buildable feature concept |
 | 1b | visual-companion | Explore UI structure before requirements |
 | 1c | frontend-design | Define the design system for greenfield or hybrid UI work: tokens, component catalog, and the `/dev/components` showcase |
+| 1c | design-intake | Extract the same artifacts from an external designer's delivery instead, gated by a conformance pass against the brief's design-system contract. Alternative to `frontend-design` — run one, not both |
 | 1d | ui-mockup | Create lightweight mockups and implementation handoff; track stakeholder iterations |
 | 1e | concept-sync | Reconcile iterated mockup changes back into the concept; set delivery track |
 | 2 | requirements-engineer | Write PRDs, user stories, acceptance criteria, and edge cases; Linear handoff mode for discovery |

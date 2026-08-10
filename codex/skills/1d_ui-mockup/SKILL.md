@@ -39,8 +39,34 @@ Pick the fidelity from the project mode and design references. State the chosen 
 - **Wireframe (greyscale):** Default for greenfield projects with no design system, especially when a UI/UX expert takes over the visual design later. Use a neutral greyscale palette, very small border radii (about 2–4px), no brand colors, no decorative imagery. Communicate structure, hierarchy, flows, and states — not visual identity. This keeps mockups cheap to change during iteration and avoids implying final styling.
 - **Design-system:** Use when an existing design system is present (brownfield) or when `frontend-design` produced a `design-language.md`. Adopt the existing or defined tokens, colors, typography, spacing, and radii so the mockups read as the real product.
 - **Hybrid:** Apply the existing design system to known areas and fall back to greyscale wireframe for the documented gaps.
+- **Design-derived:** Use when `1c_design-intake` extracted the design system from an **external designer's** delivery. **Do not author screen mockups in this mode.** The designer's file is the visual authority, and a second set of HTML screens is a competing one — the failure this mode exists to prevent. Produce the sitemap and `implementation-handoff.md` only; every screen box in the sitemap links to the designer's node instead of to a local file. See *Design-Derived Mode* below.
 
 If `1c_frontend-design` was skipped for a greenfield project, default to **Wireframe (greyscale)** rather than inventing a visual identity.
+
+## Design-Derived Mode
+
+Detect it: `1c_design/design-source.md` exists. That file is written only by
+`1c_design-intake`, and its presence means a designer's delivery has been
+accepted, conformance-checked and version-stamped.
+
+What changes:
+
+| Step | Normal | Design-derived |
+|---|---|---|
+| 2 — Sitemap | Boxes link to local mockup files | Boxes link to the designer's node, with its version stamp |
+| 3 — Screen mockups | One HTML file per screen | **Skipped.** Nothing is authored |
+| 4 — Iteration log | Records changes prompted into the HTML | Records **design version bumps**, `Source: design` |
+| 5 — Handoff | As specified | Gains a required `## Design Source` block |
+
+What does not change: the sitemap is still required, `implementation-handoff.md`
+is still required, and both are still the artifacts requirements, architecture,
+planning and execution consume. This mode removes the *competing authority*, not
+the handoff.
+
+**If the design covers only part of the PROJ's screens**, do not fill the rest
+with authored mockups — that reintroduces the second authority for exactly the
+screens where nobody can tell which is binding. List the uncovered screens under
+`## Open UI Risks` in the handoff and route them back to the designer.
 
 ## Input
 
@@ -52,6 +78,7 @@ Read these inputs:
 4. Optional design language: `specs/PROJ-<X>-<theme>/1c_design/design-language.md` or a canonical sibling design language that lists the current PROJ under `Applies To`
 5. Optional design delta: `specs/PROJ-<X>-<theme>/1c_design/design-delta.md`
 6. Optional brownfield as-is reference (discovery track): `specs/PROJ-<X>-<theme>/0_context/existing-state.md` and `0_context/references/`
+7. Optional external design source: `specs/PROJ-<X>-<theme>/1c_design/design-source.md` — if present, this run is **design-derived**; read its node index and accepted version stamp before anything else
 
 The selected direction in `layout-decision.md` is binding. Refine it into concrete screens and states. Do not invent alternate layout containers unless the user explicitly asks.
 
@@ -147,6 +174,9 @@ Use plain HTML/CSS boxes and links. Each sitemap box links to its mockup file.
 
 ### 3. Create Screen Mockups
 
+**Skipped entirely in design-derived mode** — go to step 4. Authoring a screen
+here would create a second visual authority alongside the designer's file.
+
 Create one HTML file per screen in `specs/PROJ-<X>-<theme>/1d_mockups/`.
 
 Each mockup includes:
@@ -196,13 +226,16 @@ Stakeholders typically iterate here by prompting changes directly into the mocku
 # Mockup Iteration Log — PROJ-<X> <theme>
 
 ## Iteration <N> — <date>
-- Change: <what changed in the mockup>
+- Source: mockup | design
+- Change: <what changed in the mockup, or the design version bump and what moved in it>
 - Driver: <stakeholder feedback | own decision | open question resolved>
 - Affects concept: yes (scope) | yes (behavior) | no (presentation-only)
-- Screen(s): <which mockup files>
+- Screen(s): <which mockup files, or which design nodes>
 ```
 
 Classify each change's `Affects concept` field honestly: only scope or behavior changes need to flow back into the concept later; presentation-only tweaks stay in the mockups. This log is the input to `concept-sync` (1e).
+
+**In design-derived mode the log is still required and still the input to 1e** — its entries record **design version bumps** rather than HTML edits, with `Source: design` and the new version stamp. Without them the concept-drift detection silently reads an empty log and reports no drift, which is indistinguishable from a design nobody changed. A version bump that moves scope or behavior is `Affects concept: yes` exactly as a prompted mockup change is.
 
 Do not edit the concept doc from this skill. Capture changes in the log; reconciliation happens in `concept-sync`.
 
@@ -227,6 +260,14 @@ greenfield | brownfield | hybrid
 - Visual Companion decision:
 - Mockups:
 - Design language:
+
+## Design Source
+[Design-derived mode only; omit the section entirely in the other modes.]
+- Accepted version stamp:
+- Accepted on / by:
+- Node index: `1c_design/design-source.md`
+- Screens covered by the design:
+- Screens NOT covered (also listed under Open UI Risks):
 
 ## Selected UI Direction
 [One paragraph describing the selected container/model.]
@@ -299,7 +340,8 @@ Either way, the mockups are required input for user stories, acceptance criteria
 - [ ] Reusable HTML/CSS/JS primitives used
 - [ ] Empty, loading, and error states included
 - [ ] Source references included in mockups
-- [ ] Fidelity mode chosen and stated (wireframe greyscale / design-system / hybrid)
+- [ ] Fidelity mode chosen and stated (wireframe greyscale / design-system / hybrid / design-derived)
+- [ ] Design-derived only: no screen mockups authored; `## Design Source` block filled; screens the design does not cover listed under Open UI Risks
 - [ ] `iteration-log.md` maintained across iteration rounds with concept-impact classified
 - [ ] `implementation-handoff.md` created
 - [ ] User reviewed and approved mockups and handoff

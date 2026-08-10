@@ -9,8 +9,10 @@ flowchart LR
   S0A[0a product-vision · new product only] --> S1[1 brainstorming]
   S1 --> S1B[1b visual-companion]
   S1B --> S1C[1c frontend-design optional]
+  S1B --> S1CI[1c design-intake · external designer]
   S1B --> S1D[1d ui-mockup]
   S1C --> S1D
+  S1CI -->|design-derived: sitemap + handoff only| S1D
   S1D -->|prompt iterations + iteration-log| S1D
   S1D --> S1E[1e concept-sync]
   S1E --> S2[2 requirements-engineer · Linear handoff]
@@ -55,6 +57,7 @@ A discovery engagement has no codebase, so there is nothing to scaffold. Open a 
 | 1 | brainstorming | Turn stakeholder input and requirements into a first concept; for brownfield, capture the existing state into `0_context/` |
 | 1b | visual-companion | Decide the rough UI shape before mockups |
 | 1c | frontend-design (optional) | Build the design system: tokens, component catalog, and `/dev/components` showcase in the chosen stack. Only when adopting or defining a design system; otherwise skip and use greyscale wireframes |
+| 1c | design-intake (optional) | The alternative 1c when an **external designer** delivers the system: verify the delivery against the brief's design-system contract, then extract tokens, catalog and showcase from it. Run one 1c, never both |
 | 1d | ui-mockup | Build mockups, then iterate by prompting changes directly into the HTML; every concept-affecting change is recorded in `iteration-log.md` |
 | 1e | concept-sync | After agreement, reconcile the tracked changes back into the concept and set the delivery track |
 | 2 | requirements-engineer | Produce developer-ready PRDs for the handoff |
@@ -86,6 +89,7 @@ This becomes the design source where config files would normally be: `visual-com
 - **Greenfield, no design system:** `ui-mockup` uses **greyscale wireframes** with very small border radii — structure and flow, not visual identity. A UI/UX expert refines the visual design downstream. Skip `frontend-design`.
 - **Existing design system:** `ui-mockup` adopts the existing tokens, colors, typography, and radii (from `0_context/existing-state.md` on this track) so mockups read as the real product.
 - **Design system built in the chain:** when `frontend-design` runs, it fills three artifacts with one writer each — `docs/DESIGN-SYSTEM.md` (rules, ≤80 lines, injected into every frontend context bundle), `docs/components.md` (the inventory, **generated** from the doc block above each component export via `scripts/gen-component-registry.mjs`, verified by the wave gate), and the `/dev/components` showcase (where the detail lives, because it costs no context budget). On this track there is no scaffold, so the showcase is written as a standalone `1c_design/component-showcase.html` — **same sections, same anchors** as the later route, so porting it is mechanical. Its structure is foundations (`#tokens`) → one section per registry entry in alphabetical order → one `#pattern-<name>` section per `## Patterns` entry. Everything downstream references components and patterns by anchor (`/dev/components#bulk-bar`). A missing component is closed by extending the system, not by one-off styling — in `ui-mockup` and in `executing` alike.
+- **Design system delivered by an external designer:** `design-intake` runs instead of `frontend-design` and fills the same artifacts, but by **extraction, never authoring** — gated by `1c_design/design-conformance.md`, a clause-by-clause pass against the design-system contract in the PROJ's UI brief. If the brief carries no such contract, amend the brief before running the skill: an extraction with nothing to verify against produces artifacts nobody can defend. `ui-mockup` then runs in **design-derived** mode and authors no screens, because the designer's file is the visual authority and a second set of HTML screens is a competing one.
 
 ## The iteration loop
 

@@ -17,7 +17,9 @@ Step  Skill                  Output
  0b   intake                 the same curated docs/ baseline, extracted from code
   1   brainstorming          specs/PROJ-<X>-<theme>/1_brainstorm/PROJ-<X>-concept.md
  1b   visual-companion (opt) specs/PROJ-<X>-<theme>/1b_visual-companion/layout-*.*
- 1c   frontend-design (opt)  specs/PROJ-<X>-<theme>/1c_design/design-language.md
+ 1c   frontend-design (opt)  specs/PROJ-<X>-<theme>/1c_design/design-language.md          ┐ run
+ 1c   design-intake (opt)    the same 1c_design/ artifacts, extracted from a designer's   ┘ one
+                             delivery + design-conformance.md + design-source.md
  1d   ui-mockup (UI req.)    specs/PROJ-<X>-<theme>/1d_mockups/sitemap.html + mockups + implementation-handoff.md + iteration-log.md
  1e   concept-sync (opt)     reconciled 1_brainstorm/PROJ-<X>-concept.md (Concept Sync Log + Handoff Readiness)
   2   requirements-engineer  specs/PROJ-<X>-<theme>/2_PRDs/PROJ-<X>-PRD-<Y>-<desc>.md
@@ -41,9 +43,16 @@ are mandatory despite the letter. A skill with no number is not a step at
 all: `cross-review` is a mechanism invoked inside P7, never routed to
 directly, and `refactor-dreamer`/`sonar-cli` run outside the chain.
 
+**Two skills share the number `1c`**, and that is deliberate: they are
+alternative paths to the same artifacts, the way `0a` and `0b` are.
+`frontend-design` **decides** a design system by proposing directions to the
+user; `design-intake` **extracts** one an external designer already made and
+verifies it against the contract it was commissioned under. **Run one, never
+both** — two writers for one artifact means two design systems.
+
 Each PROJ has its own folder `specs/PROJ-<X>-<theme>/`, and each subfolder
 carries the number of the skill that writes it — `1c_design/` is written by
-`1c_frontend-design`, `2b_handoff/` by `2b_handoff-package`. Architecture
+whichever `1c` skill ran, `2b_handoff/` by `2b_handoff-package`. Architecture
 and plans share `3-4_plan/` because steps 3 and 4 both write there.
 Progress is a single file in `5_progress/` tracking all waves. Framework runs additionally keep machine state in `state.json` (written only via `scripts/state.sh`) and the findings ledger in `findings.json` (written only via `scripts/ledger.mjs`).
 
@@ -139,7 +148,7 @@ Scan `specs/PROJ-*/` folders to find the latest PROJ. For each PROJ, check:
 1. `1_brainstorm/PROJ-<X>-concept.md` — concept written? → step 1 done
 2. `1b_visual-companion/layout-decision.md` + `layout-exploration.html` — visual companion present? → step 1b done
 3. Project-mode detection: prefer `1b_visual-companion/layout-decision.md` → `Project Mode`. Fallback: scan for existing app shell/components/tokens. If no reusable app shell, component set, design tokens, or real screens exist → greenfield. If existing screens/components/tokens/navigation meaningfully constrain the feature → brownfield. If some structure exists but important design/component gaps remain → hybrid.
-4. `1c_design/design-language.md` exists → step 1c done
+4. `1c_design/design-language.md` exists → step 1c done. Read `1c_design/design-source.md` to tell **which** 1c path ran: present → `design-intake` (an external designer's delivery, conformance-checked and version-stamped); absent → `frontend-design`. This decides 1d's fidelity mode, so establish it before recommending 1d. Never recommend the other 1c skill for a PROJ that already ran one.
 5. `1d_mockups/*.html` + `1d_mockups/implementation-handoff.md` — mockups and UI handoff present? → step 1d done
    - `1d_mockups/iteration-log.md` with any entry marked `Affects concept: yes` **and** the concept has no `Concept Sync Log` entry covering that iteration → concept drifted, recommend `concept-sync` (1e) before requirements.
    - Concept contains `Concept Sync Log` / `Handoff Readiness` → step 1e done.
@@ -176,8 +185,14 @@ Based on detected state, tell the user:
 **Visual Companion exists, no mockups, no PRDs (brownfield):**
 > "Visual Companion output is ready at `specs/PROJ-<X>-<theme>/1b_visual-companion/`. Existing UI/design detected. Next step: use **ui-mockup** (1d), then **requirements-engineer** (2)."
 
+**Visual Companion exists, an external designer is commissioned, no design-language:**
+> "Visual Companion output is ready at `specs/PROJ-<X>-<theme>/1b_visual-companion/`. An external design deliverable is commissioned for this PROJ, so 1c runs as **design-intake** rather than frontend-design. Before it can run, the UI brief needs a design-system contract — without one the extraction has nothing to verify against and produces artifacts nobody can defend. Confirm the brief carries it, then run **design-intake** (1c), **ui-mockup** (1d) in design-derived mode, then **requirements-engineer** (2)."
+
 **Design language exists, no mockups, no PRDs:**
 > "Design language is ready at `specs/PROJ-<X>-<theme>/1c_design/design-language.md`. Next step: use **ui-mockup** (1d); it consumes the Visual Companion decision and design language."
+
+**Design language exists via design-intake (`1c_design/design-source.md` present), no mockups:**
+> "The external design system for `PROJ-<X>-<theme>` is extracted and version-stamped (`1c_design/design-source.md`, conformance in `design-conformance.md`). Next step: **ui-mockup** (1d) in **design-derived** mode — it produces the sitemap and implementation handoff only, and authors no screen mockups, because the designer's file is the visual authority."
 
 **Mockups exist, iterated, concept not yet synced:**
 > "Mockups for `PROJ-<X>-<theme>` were iterated (`1d_mockups/iteration-log.md`) and the concept hasn't been reconciled yet. Next step: use **concept-sync** (1e) to flow the agreed mockup changes back into the concept before requirements."
@@ -253,7 +268,8 @@ If the user asks "what does each step do?":
 | 0b | intake (once per repo) | Bootstrap the curated docs baseline: scan + provenance-marked drafts, developer interview, checkpoint reconcile, seal commit |
 | 1 | brainstorming | Explore the idea, allocate PROJ-X and thema slug, write concept |
 | 1b | visual-companion (optional) | Interactive layout exploration plus project mode: greenfield/brownfield/hybrid |
-| 1c | frontend-design (optional) | Visual design language — greenfield, or hybrid gaps only |
+| 1c | frontend-design (optional) | Visual design language — greenfield, or hybrid gaps only. **Decides** the system |
+| 1c | design-intake (optional) | **Extracts** an external designer's delivery into the same artifacts, gated by a conformance pass. Alternative to frontend-design — run one, not both |
 | 1d | ui-mockup (UI required) | HTML sitemap + per-screen mockups + `implementation-handoff.md` + `iteration-log.md`; greyscale-wireframe or design-system fidelity |
 | 1e | concept-sync (optional) | Reconcile iterated mockup changes back into the concept; set delivery track (full chain vs. Linear handoff) |
 | 2 | requirements-engineer | PRDs from concept + approved mockups + UI handoff: user stories, acceptance criteria, edge cases; Linear handoff mode produces developer-ready PRDs |

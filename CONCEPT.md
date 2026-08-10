@@ -219,7 +219,8 @@ rather than decided. Exactly one of the two paths.
 
 The repository's existing pre-PRD flow is preserved unchanged. A PROJ
 starts with `1_brainstorming`, optionally follows the UI branch
-(`1b_visual-companion` → optional `1c_frontend-design` →
+(`1b_visual-companion` → optional `1c_frontend-design` *or*
+`1c_design-intake` where an external designer delivers the system →
 `1d_ui-mockup` → optional `1e_concept-sync`), and then runs
 `2_requirements-engineer`. On the product-discovery track it may continue
 through `2b_handoff-package` and `2c_review-reconcile`, then stops; P3–P8
