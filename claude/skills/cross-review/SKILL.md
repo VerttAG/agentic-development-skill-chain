@@ -15,6 +15,7 @@ at handoff, defaulting to yes.
 | Mode | Artifact | Review focus |
 |---|---|---|
 | `concept` | `1_brainstorm/PROJ-<X>-concept.md` | product coherence, buildability, boundaries, grounding |
+| `requirements` | `2_PRDs/*.md` (legacy `3_PRDs/`) | story completeness, AC strength, edge-case clarity, scope drift, internal consistency |
 | `architecture` | `3-4_plan/PROJ-<X>-architecture.md` | decisions, feasibility, traceability, risk |
 | `plan` | wave plans and gate config | executability, coverage, sequencing, scope |
 | `docs` | curated documentation | factual truth, staleness, cap-gaming, durable-rule quality |
@@ -42,6 +43,26 @@ the architecture and the same PRDs. Feasibility and traceability are only
 checked against what is supplied, so a PRD left out is a requirement nobody
 reviews. If a referenced input does not exist, omit it; do not invent a
 replacement.
+
+Use `requirements` for a PRD set, with the concept as ground truth — and add any
+sibling PRD whose contract the set claims to honour, since a misread contract is
+the most expensive defect this mode finds. It carries the criteria
+`2_requirements-engineer` names for a second-model review, and explicitly forbids
+the reviewer from demanding protocols, schemas, cadences or component design:
+on the discovery/handoff track a requirement that states an observable property
+and leaves the mechanism open is correct, not a gap.
+
+**Do not substitute `architecture` for a PRD set.** It judges requirements on
+feasibility and technical risk, which pushes implementation mechanism *into* the
+PRDs and walks straight past story-versus-AC contradictions. Two rounds were lost
+that way on PROJ-8 before the mode existed, and the resulting over-specification
+had to be reverted.
+
+After any multi-file fix pass, re-run the same mode over the edited files. The
+recurring failure is structural rather than careless — one side of a statement
+edited and the other left standing — and every fix pass on PROJ-8 introduced at
+least one such contradiction, including a criterion made unfalsifiable while
+fixing an unfalsifiable criterion.
 
 After P0, omit `--author-provider` and use `--author-key` to resolve authorship
 from state.json. That is the persistent gate path: findings are added only via

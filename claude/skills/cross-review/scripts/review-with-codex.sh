@@ -39,10 +39,23 @@ MODEL_ARGS=()
 # limits; JSON events distinguish Codex runtime chatter from its final answer.
 # User config/rules and persisted sessions are deliberately excluded so a local
 # customization cannot change a supposedly deterministic review gate.
-setsid codex exec --skip-git-repo-check --ephemeral --ignore-user-config \
-  --ignore-rules --json ${MODEL_ARGS[@]+"${MODEL_ARGS[@]}"} - \
-  <"$PROMPT" >"$RAW" 2>&1 &
-PID=$!
+# `setsid` is util-linux and absent on macOS. It is used only to put the worker
+# in its own process group so kill_tree's `kill -- -$PID` reaches the whole tree.
+# Bash job control (`set -m`) achieves the same thing portably: a background job
+# started under it becomes its own process-group leader, and $! is that PGID.
+if command -v setsid >/dev/null 2>&1; then
+  setsid codex exec --skip-git-repo-check --ephemeral --ignore-user-config \
+    --ignore-rules --json ${MODEL_ARGS[@]+"${MODEL_ARGS[@]}"} - \
+    <"$PROMPT" >"$RAW" 2>&1 &
+  PID=$!
+else
+  set -m
+  codex exec --skip-git-repo-check --ephemeral --ignore-user-config \
+    --ignore-rules --json ${MODEL_ARGS[@]+"${MODEL_ARGS[@]}"} - \
+    <"$PROMPT" >"$RAW" 2>&1 &
+  PID=$!
+  set +m
+fi
 trap 'kill_tree "$PID"; exit 1' INT TERM
 
 DEADLINE=$((SECONDS + TIMEOUT))

@@ -18,12 +18,12 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MODE="${1:-}"; PROJ="${2:-}"; THEME="${3:-}"
 usage() {
-  echo "Usage: cross-review.sh <concept|architecture|plan|docs> <proj-x> <theme> --artifacts <file...> [--ground-truth <file...>] [--author-provider claude|codex] [--author-model M] [--author-key K] [--joint] [--round 1|2] [--diff-base SHA] [--timeout S]" >&2
+  echo "Usage: cross-review.sh <concept|requirements|architecture|plan|docs> <proj-x> <theme> --artifacts <file...> [--ground-truth <file...>] [--author-provider claude|codex] [--author-model M] [--author-key K] [--joint] [--round 1|2] [--diff-base SHA] [--timeout S]" >&2
   exit 64
 }
 [ -n "$MODE" ] && [ -n "$PROJ" ] && [ -n "$THEME" ] || usage
 shift 3
-case "$MODE" in concept|architecture|plan|docs) ;; *) echo "cross-review.sh: unknown mode '$MODE'" >&2; exit 64 ;; esac
+case "$MODE" in concept|requirements|architecture|plan|docs) ;; *) echo "cross-review.sh: unknown mode '$MODE'" >&2; exit 64 ;; esac
 
 ARTIFACTS=(); GROUND_TRUTH=(); AUTHOR_KEY=""; AUTHOR_PROVIDER=""; AUTHOR_MODEL=""
 ROUND=1; DIFF_BASE=""; TIMEOUT=600; JOINT=0; EXPLICIT_AUTHOR=0; MAX_CONTEXT_BYTES="${CROSS_REVIEW_MAX_CONTEXT_BYTES:-131072}"
@@ -85,6 +85,7 @@ fi
 FOCUS=""
 case "$MODE" in
   concept) FOCUS='- Product coherence: goal, users, scope, non-goals, success criteria and risks agree.\n- Buildability: no decision-critical ambiguity is deferred or disguised as a later concern.\n- Boundary discipline: do not smuggle PRDs, UI design, architecture or implementation plans into the concept.\n- Grounding: claims about the existing product agree with the supplied context.' ;;
+  requirements) FOCUS='- Story completeness: every user type, flow, state and role the concept requires has a user story; flag any silently dropped, merged away, or assumed without being written.\n- Acceptance-criteria strength: each AC must be testable and observable, derived from its own story Given/When/Then clauses, and owned by that story; flag vague, unfalsifiable, unverifiable or duplicated criteria.\n- Edge-case clarity: each edge case must name a concrete trigger and a decided behaviour; flag ambiguous, contradictory, or merely-implied resolutions, and edge cases the concept raises but the PRDs never answer.\n- Scope discipline: flag requirements that exceed or contradict the concept, contradict a supplied sibling-project contract, or smuggle technical architecture, UI visual design or implementation choices into a PRD.\n- Internal consistency: flag statements that contradict another AC, another PRD in the set, or the manifest. A story whose Then/And clauses disagree with the ACs it owns is a defect even when each half reads well alone.\n- IMPORTANT - do NOT request protocols, schemas, payload formats, cadence values, component design, or any implementation mechanism. PRDs on the discovery/handoff track deliberately leave these to the receiving developer. Judge WHAT must be true and whether it is testable, never HOW it is achieved. A requirement that states an observable property and leaves the mechanism open is CORRECT, not a gap.' ;;
   architecture) FOCUS='- Decision completeness: architecture resolves the cross-cutting choices required by the concept and PRDs.\n- Feasibility: proposed data, integrations, APIs, ownership and operations fit the supplied system truth.\n- Traceability: no requirement or constraint is silently lost, contradicted, or overbuilt.\n- Risk: identify unsafe assumptions, missing failure paths, migration concerns, and non-functional gaps.' ;;
   plan) FOCUS='- Executability: each task has clear file ownership, dependencies, acceptance criteria and verification.\n- Coverage: every relevant requirement and architecture decision is implemented exactly once.\n- Sequencing: waves are dependency-safe and expose shared-file or integration hazards.\n- Scope: reject invented work, hidden technical decisions, and plans that cannot be validated.' ;;
   docs) FOCUS='- Factual accuracy: every statement describes supplied ground truth, not merely plans.\n- Stale claims: flag renamed, removed, or changed modules and flows.\n- Cap-gaming: flag load-bearing truth removed to meet a size cap while trivia remains.\n- Wrong promotions: reject durable rules promoted from one-off incidents.' ;;
