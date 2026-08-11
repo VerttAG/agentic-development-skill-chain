@@ -100,6 +100,8 @@ Stakeholder agreement is reached *on the mockups*. Because changes are prompted 
 
 `concept-sync` (1e) then reads the log, updates `1_brainstorm/PROJ-<X>-concept.md`, records superseded decisions, and writes a `Handoff Readiness` section with `Delivery track: discovery (Linear handoff)`. This closes the loop so requirements are written against an accurate concept.
 
+On a **design-derived** PROJ the loop is the same shape with a different source: the iteration is a designer's version bump rather than an HTML edit, the log entries carry `Source: design`, and `concept-sync` names the accepted version stamp in its sync entry instead of an iteration number. That stamp is load-bearing — `chain-guide` detects unrecorded design drift by comparing it against `1c_design/design-source.md`, which is the only way drift is visible at all when the changes happened in a file the chain cannot read. An empty iteration log means "nobody wrote it down" here, not "nothing changed".
+
 ## Linear handoff
 
 In Linear handoff mode, `requirements-engineer` writes normal PRDs (user stories, acceptance criteria, edge cases) but omits in-repo implementation detail. The developer who picks up the work owns architecture and implementation.

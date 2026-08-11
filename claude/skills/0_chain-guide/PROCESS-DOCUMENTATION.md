@@ -101,7 +101,7 @@ Brainstorming may split one broad seed into several PROJs. Downstream skills the
 ## Handoff Rules
 
 - Step 1 hands UI features to `visual-companion`; backend/API features go to `requirements-engineer`.
-- Step 1d must be complete before Step 2 for UI features.
+- Step 1d must be complete before Step 2 for UI features. In **design-derived** mode "complete" means the sitemap and the handoff exist; the absent screen mockups are the mode working, so Step 2 must not send the PROJ back to `ui-mockup` — that skill would correctly refuse, and the two would deadlock. Step 2 also consumes the `## Behaviour Annotations — Candidate Acceptance Criteria` section `design-intake` writes into the design language, since behaviour that stays in a design tool is never built and never tested.
 - Step 2 PRDs must be approved before Step 3.
 - Step 3 architecture must be approved before Step 4 plans.
 - Step 4 plans drive Step 5 execution.

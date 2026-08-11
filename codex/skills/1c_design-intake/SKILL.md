@@ -207,10 +207,21 @@ filtered-to-zero, status announcements or reduced-motion behaviour are
 **acceptance criteria that happen to live in a design tool**. They reach no
 implementation prompt from there.
 
-List them in the design language document under a clearly-marked section and
-hand them to `2_requirements-engineer` as candidate acceptance criteria. A
-behaviour stated only in an annotation is a behaviour that will not be built and
-will not be tested.
+List them in `design-language.md` under exactly this heading, which
+`2_requirements-engineer` reads by name:
+
+```markdown
+## Behaviour Annotations — Candidate Acceptance Criteria
+| Behaviour | Applies to | Source node |
+|---|---|---|
+```
+
+The heading is fixed, not descriptive. A downstream skill cannot look up "a
+clearly-marked section", and a behaviour stated only in an annotation is a
+behaviour that will not be built and will not be tested. Where the delivery has
+no annotations, write the heading with an explicit `None — the contract's
+annotation clause was advisory and unmet` row rather than omitting it: an absent
+section and an unannotated design are indistinguishable to the next reader.
 
 ### 7. Showcase
 

@@ -67,10 +67,20 @@ Read these inputs:
 5. Optional Visual Companion decision: `specs/PROJ-<X>-<theme>/1b_visual-companion/layout-decision.md`
 6. Optional design language: `specs/PROJ-<X>-<theme>/1c_design/design-language.md`
 7. Optional shared sibling design language referenced by the concept, layout decision, or mockup handoff
+8. Design-derived only: `specs/PROJ-<X>-<theme>/1c_design/design-source.md` — the accepted version stamp and node index
 
 For UI features, mockups and `implementation-handoff.md` are required inputs. They define screens, flows, states, component reuse, new component candidates, design tokens, the interaction contract, and implementation tolerance.
 
 If a UI feature has no mockups, stop and run `visual-companion` -> optional `frontend-design` -> `ui-mockup` first. Pure backend/API features may proceed directly from the concept.
+
+**Exception — design-derived PROJs.** If `1c_design/design-source.md` exists, an external designer's file is the visual authority and `1d_ui-mockup` authored no screen HTML deliberately. **Do not apply the stop rule and do not send the user back to `ui-mockup`** — it will correctly refuse to author what you are asking for, and the two skills will deadlock. The required inputs shift rather than disappear:
+
+| Normally supplied by | In design-derived mode |
+|---|---|
+| Screen mockups | The designer's nodes, via the sitemap links and `design-source.md`'s node index |
+| Everything else in the handoff | Unchanged — `implementation-handoff.md` is still required, and still carries a `## Design Source` block |
+
+Stop only if the handoff itself is missing, or if its `Screens NOT covered` list is non-empty and those screens are in scope for the PRDs you are about to write — that is an unfinished design, which is a different problem from an unfinished mockup set and goes back to the designer, not to `ui-mockup`.
 
 ## Workflow
 
@@ -92,6 +102,10 @@ For UI features, read mockups and sitemap first:
 - Which components and tokens must be reused?
 - Which new component candidates did the user accept?
 - Which interactions are implementation contract vs. demo-only?
+
+In design-derived mode you cannot see the screens — the design lives in a tool, and you receive names, structure and numbers rather than the picture. Read the sitemap for what exists and the handoff for what it does, and **ask rather than infer** where a behaviour is only visible in the design. An inferred behaviour and an observed one are indistinguishable once written as an acceptance criterion.
+
+**Consume the annotation-derived criteria.** When `design-language.md` carries a `## Behaviour Annotations — Candidate Acceptance Criteria` section, `1c_design-intake` put it there because that behaviour was specified in the design tool and reaches no implementation prompt from inside it — validation timing, focus order and return, empty versus filtered-to-zero, status announcements, reduced-motion. Each row is a **candidate**: fold it into the acceptance criteria of the story that owns it, or record why it was dropped. They are not optional colour, and they are not already covered elsewhere; if you leave them in the design language document they will not be built and will not be tested.
 
 Ask the user focused questions only when needed:
 
@@ -166,6 +180,7 @@ Template:
 - Design tokens:
 - Interaction contract:
 - Implementation tolerance:
+- Design source (design-derived only): <accepted version stamp · node link>
 ```
 
 Each user story owns its own acceptance criteria. Do not create one global acceptance-criteria section. Derive ACs directly from the story's Given/When/Then/And clauses and make them testable.
@@ -178,7 +193,7 @@ Also ask the user to review the PRD artifacts with a different model before appr
 
 ### 6. Handoff
 
-- **Full chain:** recommend `architecture` (3) for PROJ-level technical design. For UI features, the mockups and implementation handoff remain visual references for architecture.
+- **Full chain:** recommend `architecture` (3) for PROJ-level technical design. For UI features, the mockups and implementation handoff remain visual references for architecture — in design-derived mode the designer's file plays that role, reached through the handoff's `## Design Source` block.
 - **Discovery / Linear handoff:** do not recommend `architecture`. If the work goes to people outside this repo (an external UI/UX expert, an external dev team) and a single standalone deliverable is wanted, recommend `handoff-package` (2b) to assemble a self-contained, zippable package. The chain ends here for this PROJ.
 
 ## Completion Checklist
@@ -187,6 +202,7 @@ Also ask the user to review the PRD artifacts with a different model before appr
 - [ ] Necessary user questions answered
 - [ ] UI mockups and sitemap read for UI features
 - [ ] `implementation-handoff.md` read for UI features
+- [ ] Design-derived only: the stop rule was not applied, every `## Behaviour Annotations` row was folded into a story's acceptance criteria or explicitly dropped with a reason, and in-scope screens the design does not cover were routed back to the designer
 - [ ] At least 3-5 user stories defined where feature size warrants it
 - [ ] Every user story has its own acceptance criteria
 - [ ] At least 3-5 edge cases documented where feature size warrants it
