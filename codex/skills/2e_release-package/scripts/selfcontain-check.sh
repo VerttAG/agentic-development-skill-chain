@@ -206,7 +206,7 @@ done
 
 find "$PKG/projects" -name '*PRD-manifest.md' | while IFS= read -r M; do
   REL="$(printf '%s' "$M" | sed "s|^$PKG/||")"
-  { awk '/^## Binding Cross-PROJ Contracts/{p=1;next} /^## /{p=0} p' "$M" \
+  { awk 'tolower($0) ~ /^###? +(binding +)?cross-proj contracts/ {p=1; next} /^#/ {p=0} p' "$M" \
     | grep -ohE 'PROJ-[0-9]+' || true; } | sort -u | while IFS= read -r CP; do
       [ -z "$CP" ] && continue
       grep -qx "$CP" "$TMP/packaged" && continue
