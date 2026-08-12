@@ -155,6 +155,7 @@ Idempotent and diff-oriented. On re-run, report what changed since the last one 
 ## Handoff
 
 - **Gaps to fill:** route back to `requirements-engineer` (2) with a phase-scoped brief — the feature IDs, what exists instead, and the exclusions that keep the new PRDs thin. Do not write those PRDs here.
+- **Slice to distribute or freeze:** run `release-package` (2e). It derives a standalone, immutable, commit-pinned package from this index — every in-slice concept, PRD and manifest copied into one folder a reader can consume without the repo — and verifies it in two layers: per-PROJ chain integrity, and the five checks in step 9 above applied mechanically to the packaged copy. It also finds what an index cannot: a reference to a PRD that does not exist, a cross-PROJ contract naming a PROJ nobody packaged, and quoted US headings that no longer match their PRD. 2e never edits a PRD or this index; it reports findings against their source paths so the next build picks the fixes up.
 - **Ready for architecture:** on a cross-PROJ release, run `architecture` (3) **once at release level** against the slice rather than once per PROJ. A release-phase loop that spans ten projects is one integrated path, and ten per-PROJ architecture docs will not hold it together. Per-PROJ architecture remains correct for single-PROJ work.
 - **Phase tagging inside PRDs** (per-US markers, manifest phase columns) is a separate, explicit decision after the mapping is trusted. Never bundle it into the first run.
 
@@ -169,7 +170,7 @@ Idempotent and diff-oriented. On re-run, report what changed since the last one 
 - [ ] The "anything not on this list needs no further spec" rule stated explicitly
 - [ ] Residue walked point by point; contradictions and cut-surface dependencies filed separately from gaps
 - [ ] Residue ranked by what unblocks the most downstream work
-- [ ] All four verification checks run, and their results reported — including failures
+- [ ] All five verification checks run, and their results reported — including failures
 - [ ] No PRD edited in this run
 - [ ] Freeze rule stated in the index
 

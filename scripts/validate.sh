@@ -17,6 +17,7 @@ CORE_SKILLS=(
   2b_handoff-package
   2c_review-reconcile
   2d_release-scope
+  2e_release-package
   3_architecture
   4_writing-plans
   4a_checkpoint

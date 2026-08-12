@@ -83,6 +83,7 @@ After decomposition:
 | 2b | handoff-package | Assemble a standalone, zippable handoff package for external UI/UX experts and developers (discovery track) |
 | 2c | review-reconcile | Resolve PRD review gaps point by point; defer engineering items to a developer meeting (discovery track) |
 | 2d | release-scope | Turn a phase that spans several PROJs into an executable slice: feature→US index, exclusions, ranked gaps, forward-compat seams. Runs before architecture, which then runs once at release level rather than once per PROJ |
+| 2e | release-package | Freeze a release slice into a standalone, verified, commit-pinned package under `releases/`. Proves mechanically what the 2d index only asserts — that every cited PRD resolves, every quoted story still exists, and no link leaves the package — and routes every finding back to its source PROJ |
 | 3 | architecture | Produce PM-friendly technical architecture |
 | 4 | writing-plans | Split work into wave-based implementation plans |
 | 4a | checkpoint | Checkpoint 1 as a structured reconcile loop: decision log, cascaded plan updates, seal `CP1:approved` in state.json; the same loop serves CP2 PR comments via delivery |

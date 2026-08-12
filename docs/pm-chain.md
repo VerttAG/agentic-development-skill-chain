@@ -24,6 +24,9 @@ flowchart LR
   S2C -.->|items needing engineering| MTG([Developer meeting agenda])
   S2 --> S2D[2d release-scope · optional · cross-PROJ phased roadmap]
   S2D --> REL([Release slice · specs/_releases])
+  REL --> S2E[2e release-package · optional]
+  S2E --> PKG([Verified package · releases/R-vX.Y.Z])
+  S2E -.->|findings, by source path| S2C
 ```
 
 Steps 0c (bootstrap) and 3–7 (architecture, plans, executing, QA, documentation) do **not** apply on this track — there is no codebase to scaffold or build.
@@ -66,6 +69,7 @@ A discovery engagement has no codebase, so there is nothing to scaffold. Open a 
 | 2b | handoff-package (optional) | Assemble a standalone, zippable package for an external UI/UX expert and/or developers; the chain ends here |
 | 2c | review-reconcile (optional) | When a developer/stakeholder review returns gaps on the PRDs, resolve them point by point, defer engineering items to a developer meeting, and update PRDs/concept/mockups with a handoff-facing changelog |
 | 2d | release-scope (optional) | When a roadmap phase spans several PROJs, index every in-phase feature to the user stories that deliver it, name the later-phase stories hiding inside in-scope PRDs, rank the features with no PRD behind them, and register the forward-compatibility seams. Skip it for a single PROJ — its PRD manifest already does this |
+| 2e | release-package (optional) | Freeze the 2d slice into a standalone, commit-pinned package under `releases/` and verify it: per-PROJ chain integrity, plus resolvability, round-trip, leakage, link locality and cross-PROJ contract closure across the packaged copy. Findings are reported against their **source** path and fixed in the PROJ folder, never in the package, so the next build picks them up |
 
 ## The review-reconcile loop
 

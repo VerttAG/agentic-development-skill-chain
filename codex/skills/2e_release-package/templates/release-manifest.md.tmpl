@@ -1,0 +1,49 @@
+# Release Manifest — @@RELEASE@@ @@VERSION@@
+
+Package:        `@@PACKAGE_DIR@@`
+Generated:      @@BUILD_DATE@@
+Repo HEAD:      `@@REPO_HEAD@@`
+Source branch:  `@@BRANCH@@`
+Scope index:    `@@SCOPE_FILE@@`
+Previous:       @@PREVIOUS@@
+
+## Resolved Slice
+
+Derived at build time from the scope index's `§1` (the slice) and `§3` (dependency closure). Not
+declared anywhere by hand — if this set is wrong, the scope index is wrong.
+
+**In-slice (@@PROJ_COUNT@@):** @@IN_SLICE@@
+
+**Out-of-slice (referenced but not delivered here):** @@OUT_OF_SLICE@@
+
+## Counts
+
+| | Count |
+|---|---|
+| Projects | @@PROJ_COUNT@@ |
+| PRDs | @@PRD_COUNT@@ |
+| User stories | @@US_COUNT@@ |
+
+## Included Artifacts
+
+| Package path | Source path | Notes |
+|---|---|---|
+@@ARTIFACT_ROWS@@
+
+## Source Snapshot
+
+Per-file commit at which each artifact was copied. A package rebuilt at these commits is
+byte-identical apart from the generation timestamp.
+
+| Source path | Commit |
+|---|---|
+@@SNAPSHOT_ROWS@@
+
+## Deliberate Exclusions
+
+| Pattern | Why |
+|---|---|
+| `*-review-*decisions.md` | Audit trail of how the specs reached their current state; superseded positions read as current out of context |
+| `review-changelog.md` | Same; reader-facing delta belongs in `00-what-changed.md` |
+| `*-analysis-*.md`, `*-agenda.md` | Working documents, not specifications |
+| Projects not in the resolved slice | Not delivered by this release; references to them are classified, not dangling |
