@@ -23,6 +23,8 @@
 #   B8  Contract closure — cross-PROJ contracts name a packaged or known project
 #   B9  Pin freshness  — no packaged artifact's source has moved since the build
 #   B10 Stale claims   — no artifact calls a feature unwritten that the slice resolves
+#   B11 Scope legibility — every packaged PRD states its own release membership,
+#                          and it agrees with the scope index §2.5
 #
 # B1, B4 and B5 are reported mechanically but need a human read to close: the script
 # can see a duplicate or a missing citation, not whether a judgement was right.
@@ -320,6 +322,77 @@ if [ "$SPECD_N" -gt 0 ]; then
   done
 fi
 
+# --------------------------------------------------------- B11 · scope legibility
+#
+# Every packaged PRD must state its own release membership, and say the same thing the
+# scope index says. The package's premise is standalone readability: a reader holding a
+# PRD must not have to cross-reference a 500-line index to learn the file in front of
+# them is three releases away. rc3 shipped 48 out-of-scope PRDs with no marker at all.
+#
+# Three things are checked per PRD: the marker exists, §2.5 lists the PRD, and the two
+# agree. Membership is compared as a class (IN / PARTIAL / OUT), not as prose.
+#
+# Beware the trap that produced 44 false positives on the first hand-audit of this rule:
+# the OUT boilerplate contains the word "partially" ("...a partially-included project
+# keeps its surroundings"), so PARTIAL must be detected from the ⛔/🟡/✅ marker glyph
+# or an anchored phrase — never by searching the whole line for "partial".
+
+classify() { # <line> -> IN | PARTIAL | OUT | ?
+  case "$1" in
+    *'⛔'*)                 printf 'OUT' ;;
+    *'🟡'*)                 printf 'PARTIAL' ;;
+    *'✅'*)                 printf 'IN' ;;
+    *'NOT in'*)             printf 'OUT' ;;
+    *', partially'*)        printf 'PARTIAL' ;;
+    *'**IN (partial)**'*)   printf 'PARTIAL' ;;
+    *'**OUT**'*)            printf 'OUT' ;;
+    *'**IN**'*)             printf 'IN' ;;
+    *)                      printf '?' ;;
+  esac
+}
+
+# The membership table is §2.5. Extract it once: a bare grep of the whole index finds
+# the §1 or §2 row for the same PRD first, which carries no membership class and reads
+# as unclassifiable.
+awk '/^# §2\.5 /{p=1;next} p && /^# §[0-9]/{p=0} p' "$SCOPE" > "$TMP/s25" || true
+: > "$TMP/s25"; awk '/^# §2\.5 /{p=1;next} p && /^# §[0-9]/{exit} p' "$SCOPE" >> "$TMP/s25" || true
+
+B11_N=0
+if [ ! -s "$TMP/s25" ]; then
+  add B11 warn "02-scope.md" "no §2.5 per-PRD membership table found — per-PRD membership cannot be cross-checked"
+fi
+find "$PKG/projects" -name '*-PRD-*.md' ! -name '*manifest*' 2>/dev/null | sort | while IFS= read -r F; do
+  REL="$(printf '%s' "$F" | sed "s|^$PKG/||")"
+  # §2.5 keys PRDs by their short id (`PROJ-9-PRD-1`), not by filename. Take the id
+  # from the filename and match it backtick-delimited, so PRD-1 cannot match PRD-16.
+  KEY="$(basename "$F" | grep -ohE '^PROJ-[0-9]+-PRD-[0-9]+' || true)"
+  [ -z "$KEY" ] && continue
+
+  MARKER="$(grep -m1 '^\*\*R1 scope:\*\*' "$F" 2>/dev/null || true)"
+  if [ -z "$MARKER" ]; then
+    add B11 fail "$REL" "no '**R1 scope:**' marker — a reader cannot tell whether this PRD is in the release without the index"
+    continue
+  fi
+
+  # Anchor on the row KEY — the first cell — not on any occurrence. §2.5 rows cite
+  # other PRDs inside their notes, so an unanchored match reads a neighbour's row and
+  # reports a disagreement that is not there.
+  ROW="$(grep -m1 "^| \`$KEY\` |" "$TMP/s25" 2>/dev/null || true)"
+  if [ -z "$ROW" ]; then
+    add B11 fail "$REL" "carries a marker but the scope index §2.5 does not list it — membership is asserted by the PRD and by nothing else"
+    continue
+  fi
+
+  M="$(classify "$MARKER")"; S="$(classify "$ROW")"
+  if [ "$M" = '?' ] || [ "$S" = '?' ]; then
+    add B11 warn "$REL" "membership class could not be read (marker='$M' index='$S') — check the marker wording"
+  elif [ "$M" != "$S" ]; then
+    add B11 fail "$REL" "marker says $M, scope index §2.5 says $S — §2.5 is the authority; fix it there first, then the PRD"
+  fi
+done
+
+B11_N="$(find "$PKG/projects" -name '*-PRD-*.md' ! -name '*manifest*' 2>/dev/null | wc -l | tr -d ' ')"
+
 # --------------------------------------------------------- report
 
 TOTAL="$(wc -l < "$FIND_FILE" | tr -d ' ')"
@@ -342,6 +415,7 @@ REPORT="$TMP/report.md"
   summary B3 "Round-trip — quoted US headings exist verbatim" "$QUOTED_N quoted headings"
   summary B4 "Leakage — nothing both in-scope and excluded" "$(wc -l < "$TMP/both" | tr -d ' ') overlaps"
   summary B5 "Gap honesty — GAP rows say what exists instead" "$GAP_N GAP rows"
+  summary B11 "Scope legibility — every PRD states its own membership" "$B11_N packaged PRDs"
   summary B6 "Dangling references — every PRD ID resolves" "$REF_N distinct references"
   summary B7 "Link locality — no link leaves the package" "$(find "$PKG" -name '*.md' | wc -l | tr -d ' ') files"
   summary B8 "Contract closure — cross-PROJ contracts land" "$(find "$PKG/projects" -name '*PRD-manifest.md' | wc -l | tr -d ' ') manifests"
