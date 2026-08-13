@@ -107,7 +107,21 @@ rel() { printf '%s' "${1#$REPO_ROOT/}"; }   # absolute -> repo-relative
 
 # Map the release working documents onto stable, reader-ordered package names.
 freeze() { # <glob> <package-name> <note>
-  local src
+  local src n
+  # An ambiguous glob is a build failure, not a coin toss. `head -1` silently picked
+  # one of several matches, and the file it picked was copied in under a name that
+  # promises different content — a release folder gained an `R1-review-findings-*.md`
+  # and the package's frozen change narrative silently became that intake instead.
+  # The dangling links were caught by B7; the substituted content was not caught by
+  # anything, because both files exist and both are valid markdown.
+  n="$(find "$RELEASE_DIR" -maxdepth 1 -name "$1" | wc -l | tr -d " ")"
+  if [ "$n" -gt 1 ]; then
+    echo "Ambiguous freeze pattern [$1] matched $n files in $RELEASE_DIR:" >&2
+    find "$RELEASE_DIR" -maxdepth 1 -name "$1" | while IFS= read -r amb; do echo "  $amb" >&2; done
+    echo "Exactly one file may match, or the package silently freezes the wrong one." >&2
+    echo "Rename the others so they fall outside the pattern." >&2
+    exit 64
+  fi
   src="$(find "$RELEASE_DIR" -maxdepth 1 -name "$1" | head -1)"
   [ -z "$src" ] && return 0
   cp "$src" "$PKG/$2"
