@@ -165,12 +165,32 @@ for P in $IN_SLICE; do
     record "projects/$PNAME/linear-import.md" "$PRDDIR/linear-import.md" "Linear import"
   fi
 
+  # open-decisions register, where one exists
+  #
+  # A project's live open decisions belong beside its PRDs, not inside a dated handoff run.
+  # Copied explicitly rather than falling out of the PRD sweep below, so it is recorded as its
+  # own artifact type and never counted as a PRD.
+  if [ -f "$REPO_ROOT/$PRDDIR/$P-open-decisions.md" ]; then
+    cp "$REPO_ROOT/$PRDDIR/$P-open-decisions.md" "$PKG/projects/$PNAME/$P-open-decisions.md"
+    record "projects/$PNAME/$P-open-decisions.md" "$PRDDIR/$P-open-decisions.md" "Open decisions"
+  fi
+
+  # mockups, where they exist
+  #
+  # Design artifacts, copied whole. A reader of a UI-bearing project could otherwise not tell
+  # that mockups exist at all; the manifest records the directory rather than every asset.
+  if [ -d "$REPO_ROOT/$PDIR/5_mockups" ]; then
+    mkdir -p "$PKG/projects/$PNAME/mockups"
+    cp -R "$REPO_ROOT/$PDIR/5_mockups/." "$PKG/projects/$PNAME/mockups/"
+    record "projects/$PNAME/mockups/" "$PDIR/5_mockups" "Mockups"
+  fi
+
   # PRDs — select by exclusion: PROJ-1 does not use the PROJ-<N>-PRD-<n>- convention
   N_PRD=0; N_US=0
   ( cd "$REPO_ROOT" && find "$PRDDIR" -maxdepth 1 -name '*.md' | sort ) | while IFS= read -r F; do
     B="$(basename "$F")"
     case "$B" in
-      *manifest*|*review*|*changelog*|linear-import*|README*|*analysis*|*agenda*|*summary*) continue ;;
+      *manifest*|*review*|*changelog*|linear-import*|README*|*analysis*|*agenda*|*summary*|*open-decisions*) continue ;;
     esac
     cp "$REPO_ROOT/$F" "$PKG/projects/$PNAME/PRDs/$B"
     record "projects/$PNAME/PRDs/$B" "$F" "PRD"

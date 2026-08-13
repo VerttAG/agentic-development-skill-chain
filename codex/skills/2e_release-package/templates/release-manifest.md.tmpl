@@ -47,3 +47,10 @@ byte-identical apart from the generation timestamp.
 | `review-changelog.md` | Same; reader-facing delta belongs in `00-what-changed.md` |
 | `*-analysis-*.md`, `*-agenda.md` | Working documents, not specifications |
 | Projects not in the resolved slice | Not delivered by this release; references to them are classified, not dangling |
+| `0_context/` | Inputs the concept was written from; superseded by the concept itself |
+| `2_visual-companion/` | Structural UI exploration that precedes the mockups it produced |
+| `4_design/` | Design-system source; the mockups carry the rendered result |
+| `8_handoff/` | Dated per-project handoff runs. **A handoff is a snapshot, this package is derived** — anything in a handoff that is live state (an open-decisions register) belongs in the project folder, where it is copied from |
+
+**Directories are listed even when empty of findings.** A packager that silently skips a source
+directory reads, to a later reader, exactly like one that found nothing there.

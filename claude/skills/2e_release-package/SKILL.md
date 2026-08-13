@@ -58,7 +58,8 @@ releases/R<N>-v<MAJOR>.<MINOR>.<PATCH>[-rcN]/
   03-forward-compat.md      frozen forward-compat register               (copied)
   04-gaps-at-release.md     frozen ranked gap register                   (copied)
   05-review-notes.md        frozen change narrative                      (copied)
-  projects/<PROJ-dir>/      concept, PRD manifest, PRDs/, linear-import  (copied)
+  projects/<PROJ-dir>/      concept, PRD manifest, PRDs/, linear-import,
+                            open-decisions register, mockups/             (copied)
 ```
 
 `releases/` sits at the repository root, outside `specs/`. Source specs and generated packages are
@@ -67,6 +68,11 @@ different kinds of thing and the separation should be visible from the top level
 Source basenames are preserved throughout `projects/`. The specifications cite each other by
 filename constantly, so renaming would break every one of those references — and the resolvability
 check would be right to fail it.
+
+**The open-decisions register** (`<PROJ>-open-decisions.md`, beside the PRDs) is copied as its own
+artifact type and is **excluded from the PRD sweep**, so it never inflates the PRD count. A project
+that keeps its live open decisions only inside a handoff run will not have them packaged — move the
+register into the project folder; a handoff is a snapshot and this package is derived.
 
 **Not copied:** `*-review-*decisions.md`, `review-changelog.md`, `*-analysis-*.md`, `*-agenda.md`.
 They are the audit trail of how the specs reached their current state, they are large, and they carry
