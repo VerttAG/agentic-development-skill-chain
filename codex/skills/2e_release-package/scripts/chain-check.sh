@@ -112,7 +112,7 @@ prd_files() { # <prd-dir> -> repo-relative PRD file paths, one per line
   ( cd "$REPO_ROOT" && find "$1" -maxdepth 1 -name '*.md' | sort ) | while IFS= read -r f; do
     b="$(basename "$f")"
     case "$b" in
-      *manifest*|*review*|*changelog*|linear-import*|README*|*analysis*|*agenda*|*summary*) continue ;;
+      *manifest*|*review*|*changelog*|linear-import*|README*|*analysis*|*agenda*|*summary*|*open-decisions*) continue ;;
     esac
     printf '%s\n' "$f"
   done
