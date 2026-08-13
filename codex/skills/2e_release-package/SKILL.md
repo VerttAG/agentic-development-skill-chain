@@ -5,24 +5,6 @@ description: "Build a standalone, immutable, verified specs release package from
 
 # Release Package — Freeze A Slice, Prove It Stands Alone
 
-## Codex Adaptation
-
-This skill is aligned with the Claude variant. In Codex:
-
-- Reusable skill assets live under `~/.codex/skills/...` instead of
-  `~/.claude/skills/...`.
-- **No subagents.** Phase 3 says to dispatch one so the payload never enters
-  the main context. Run the two checkers yourself instead, and read only what
-  they report: their findings tables, and the specific files a finding cites.
-  Do not read the packaged PRDs to "check" a passing check — the reports and
-  the exit codes are the result. That discipline is what the subagent buys in
-  Claude, and it has to be kept by hand here.
-- No AskUserQuestion tool: run the Phase 4 gap triage as numbered question
-  blocks in the conversation, one severity group at a time, and wait for the
-  answers before writing `KNOWN-GAPS.md`.
-- Everything else — the derived slice, the immutability rule, the two check
-  layers, the source-path write-back — is identical.
-
 `release-scope` (2d) produces an *index*: three markdown files that point at PROJ folders. That
 index is a claim about other files, and claims drift. Observed failure modes, all from real slices:
 a release index described a PROJ as having no PRDs for five days while sixteen sat in its folder; a
@@ -179,6 +161,8 @@ targeting failures that have actually occurred in live slices.
 | B6 | **Dangling references** — every `PROJ-<X>-PRD-<N>` resolves to a packaged PRD or a known out-of-slice PROJ |
 | B7 | **Link locality** — no markdown link resolves outside the package |
 | B8 | **Contract closure** — every binding cross-PROJ contract names a PROJ that is packaged or knowingly out of slice |
+| B9 | **Pin freshness** — no packaged artifact's source has moved since the build. Fails when it has: the verification is void and the answer is a **new version**, never a re-verify. Skips cleanly when the package is read outside its repository, which is the normal standalone case |
+| B10 | **Stale claims** — no packaged artifact says a feature is unwritten while the slice index resolves that feature to a packaged PRD |
 
 A B6 failure is not always a defect: a *proposed* PRD cited in a gap entry ("a thin new
 `PROJ-7-PRD-0`") correctly does not resolve. Classify it in Phase 4 rather than filing it as a broken
@@ -204,6 +188,22 @@ Then, in this order:
 3. **Route each fix to its source.** New specifications go to `requirements-engineer` (2); amendments
    to live PRDs go to `review-reconcile` (2c). Nothing under `releases/` is ever hand-edited.
 
+**Findings from version N are fixed in source and land in version N+1. Version N is never
+re-verified.** This is what makes the loop terminate instead of regressing, and it is why an `-rc`
+carrying an honest gap list is more useful than no artifact: a package ships with its findings
+recorded, and the next build proves them closed. Fixing source and rebuilding the *same* version
+destroys that version's `VERIFICATION.md` and `KNOWN-GAPS.md` and voids the verification you just
+ran — which has happened.
+
+`B9` enforces this rather than leaving it to memory: it compares every pinned SHA against its current
+source and fails when source has moved, so a stale package cannot quietly pass twice. **If B9 fires,
+the answer is always a new version.**
+
+> ⚠️ **This phase edits a source file** — step 2 appends to `R<N>-gaps.md`. A package's pins are
+> therefore stale the moment Phase 4 runs, by design. That is why Phase 6 commits the package and the
+> re-based register together, and why B9 firing on an older package reads as *"this package is now
+> history"* rather than *"the build is broken"*.
+
 A Layer A failure can sit *in front of* a known release gap and nobody will have recorded the
 dependency. A PROJ whose concept is still a draft cannot receive the PRD that closes the release's
 blocking gap, because `requirements-engineer` will not run against a draft concept. Say so explicitly
@@ -211,6 +211,25 @@ when it happens.
 
 If a package carries blocking gaps, its version keeps the `-rc` suffix. It is still built and still
 committed — a release candidate with an honest gap list is more useful than no artifact at all.
+
+### What the checkers do not see
+
+Say this when reporting, because silence here reads as coverage.
+
+- **Files at the root of `specs/_releases/`.** `chain-check.sh` takes the slice folder and
+  `selfcontain-check.sh` takes the built package; neither walks the root. A release-level record
+  cited by several PROJ manifests can sit there going stale for days across a re-base that touches
+  everything around it. Either fold such a file into the slice folder, or give it a dated superseded
+  header the moment it stops being current.
+- **Everything outside `1_brainstorm/` and the PRD folder.** `0_context/`, `2_visual-companion/`,
+  `4_design/`, `5_mockups/` and `8_handoff/` are never opened. This matters most when a project keeps
+  a **live open-decision register only under `8_handoff/`**: a handoff is a dated snapshot, a
+  register is live state, and the package will then show a reader the PRDs with no sign that an
+  architectural prerequisite is unresolved. **Move the register into the project folder** rather than
+  teaching the packager to read handoffs — copying a snapshot would freeze it.
+- **Truth.** Both layers check structure and self-consistency. `B10` mechanizes the one slice of
+  truth the index already knows — a claim that a feature is unwritten, contradicted by the index
+  resolving it — but a PRD can still be internally perfect and wrong about the product.
 
 ## Phase 5 · Version
 

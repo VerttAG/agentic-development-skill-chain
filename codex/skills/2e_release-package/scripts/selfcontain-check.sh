@@ -21,9 +21,24 @@
 #   B6  Dangling refs  — every PROJ-<X>-PRD-<N> reference resolves
 #   B7  Link locality  — no markdown link resolves outside the package
 #   B8  Contract closure — cross-PROJ contracts name a packaged or known project
+#   B9  Pin freshness  — no packaged artifact's source has moved since the build
+#   B10 Stale claims   — no artifact calls a feature unwritten that the slice resolves
 #
 # B1, B4 and B5 are reported mechanically but need a human read to close: the script
 # can see a duplicate or a missing citation, not whether a judgement was right.
+#
+# B9 exists because "build once, then verify" was a discipline reminder with no
+# mechanism behind it. Fixing a source file after verifying silently voids the
+# verification, and nothing detected it. B9 compares every pinned SHA in the
+# manifest's Source Snapshot against the current one and fails when source has
+# moved: a stale package can no longer pass. It skips cleanly when the package is
+# read outside its repository, which is the normal standalone case.
+#
+# B10 exists because both layers check structure and self-consistency, never truth
+# — so a PRD asserting "No PRD exists" for a feature can sit beside the very PRD
+# that delivers it and pass every check. That shipped once. The slice index already
+# knows which features resolve, so the contradiction is machine-detectable: a
+# blocker claim naming a feature the index marks SPEC'D is a fail.
 #
 # Written for bash 3.2 (the macOS default).
 #
@@ -34,18 +49,19 @@
 
 set -euo pipefail
 
-PKG=""; JSON_OUT=""; MD_OUT=""
+PKG=""; JSON_OUT=""; MD_OUT=""; REPO_ROOT=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --json) JSON_OUT="${2:-}"; shift 2 ;;
     --md)   MD_OUT="${2:-}"; shift 2 ;;
+    --repo) REPO_ROOT="${2:-}"; shift 2 ;;
     -h|--help) sed -n '2,36p' "$0"; exit 0 ;;
     -*) echo "Unknown option: $1" >&2; exit 64 ;;
     *) PKG="$1"; shift ;;
   esac
 done
 
-[ -z "$PKG" ] && { echo "Usage: $0 <package-dir> [--json <path>] [--md <path>]" >&2; exit 64; }
+[ -z "$PKG" ] && { echo "Usage: $0 <package-dir> [--json <path>] [--md <path>] [--repo <path>]" >&2; exit 64; }
 [ -d "$PKG" ] || { echo "Not a directory: $PKG" >&2; exit 64; }
 PKG="$(cd "$PKG" && pwd)"
 SCOPE="$PKG/02-scope.md"
@@ -215,6 +231,72 @@ find "$PKG/projects" -name '*PRD-manifest.md' | while IFS= read -r M; do
     done
 done
 
+# --------------------------------------------------------- B9 · pin freshness
+#
+# The manifest's Source Snapshot pins the commit each artifact came from. If any of
+# those sources has moved since, this package no longer describes the repository and
+# any verification of it is void — rebuild as a NEW version rather than re-verifying
+# this one (packages are immutable; findings from version N land in N+1).
+
+MANIFEST="$PKG/release-manifest.md"
+PIN_N=0; B9_STATE="skipped"
+if [ -z "$REPO_ROOT" ]; then
+  REPO_ROOT="$( git -C "$PKG" rev-parse --show-toplevel 2>/dev/null || true )"
+fi
+if [ -f "$MANIFEST" ] && [ -n "$REPO_ROOT" ] && [ -d "$REPO_ROOT/.git" ]; then
+  # Source Snapshot rows are: | `path` | `sha` |
+  awk '/^## Source Snapshot/{p=1; next} /^## /{p=0} p' "$MANIFEST" \
+    | grep -E '^\| `[^`]+` \| `[0-9a-f]+` \|' \
+    | sed -E 's/^\| `([^`]+)` \| `([0-9a-f]+)` \|.*/\1\t\2/' > "$TMP/pins" || true
+  PIN_N="$(wc -l < "$TMP/pins" | tr -d ' ')"
+  if [ "$PIN_N" -gt 0 ]; then
+    B9_STATE="checked"
+    while IFS="$(printf '\t')" read -r SP PIN; do
+      [ -z "$SP" ] && continue
+      if [ ! -e "$REPO_ROOT/$SP" ]; then
+        add B9 fail "release-manifest.md" "pinned source no longer exists: $SP"
+        continue
+      fi
+      NOW="$( cd "$REPO_ROOT" && git log -1 --format=%h -- "$SP" 2>/dev/null || true )"
+      [ -z "$NOW" ] && continue
+      [ "$NOW" = "$PIN" ] && continue
+      add B9 fail "release-manifest.md" "source moved since the build: $SP pinned \`$PIN\`, now \`$NOW\` — this verification is void, build a new version"
+    done < "$TMP/pins"
+  fi
+fi
+
+# --------------------------------------------------------- B10 · stale blocker claims
+#
+# A packaged artifact that says a feature is unwritten, while the slice index resolves
+# that feature to a packaged PRD, is stating something the package itself disproves.
+#
+# The gap registers are excluded by name: saying what does NOT exist is their purpose.
+
+grep -ohE '^\| \*\*[A-Z]{2}-[0-9]+\*\*.*' "$SCOPE" 2>/dev/null \
+  | awk -F'|' '{ id=$2; st=$(NF-1);
+                 gsub(/[* ]/,"",id); gsub(/^[ \t]+|[ \t]+$/,"",st);
+                 if (st ~ /SPEC.D/) print id }' | sort -u > "$TMP/specd" || true
+SPECD_N="$(wc -l < "$TMP/specd" | tr -d ' ')"
+
+BLOCKER_RE='([Nn]o PRD exists|not cleared|only remaining bar|sole remaining blocker|only remaining blocker|still unwritten|no PRD behind it)'
+CLAIM_N=0
+if [ "$SPECD_N" -gt 0 ]; then
+  find "$PKG" -name '*.md' \
+    ! -name 'VERIFICATION.md' ! -name 'KNOWN-GAPS.md' \
+    ! -name '04-gaps-at-release.md' ! -name '00-what-changed.md' | while IFS= read -r F; do
+    REL="$(printf '%s' "$F" | sed "s|^$PKG/||")"
+    { grep -nE "$BLOCKER_RE" "$F" 2>/dev/null || true; } | while IFS= read -r HIT; do
+      LN="${HIT%%:*}"
+      while IFS= read -r ID; do
+        [ -z "$ID" ] && continue
+        case "$HIT" in *"$ID"*)
+          add B10 fail "$REL:$LN" "claims $ID is unwritten, but 02-scope.md resolves it as SPEC'D in this package" ;;
+        esac
+      done < "$TMP/specd"
+    done
+  done
+fi
+
 # --------------------------------------------------------- report
 
 TOTAL="$(wc -l < "$FIND_FILE" | tr -d ' ')"
@@ -240,6 +322,12 @@ REPORT="$TMP/report.md"
   summary B6 "Dangling references — every PRD ID resolves" "$REF_N distinct references"
   summary B7 "Link locality — no link leaves the package" "$(find "$PKG" -name '*.md' | wc -l | tr -d ' ') files"
   summary B8 "Contract closure — cross-PROJ contracts land" "$(find "$PKG/projects" -name '*PRD-manifest.md' | wc -l | tr -d ' ') manifests"
+  if [ "$B9_STATE" = "checked" ]; then
+    summary B9 "Pin freshness — no packaged source has moved" "$PIN_N pinned sources"
+  else
+    printf '| B9 | Pin freshness — no packaged source has moved | — | ⏭️ skipped (no repository) |\n'
+  fi
+  summary B10 "Stale claims — nothing calls a resolved feature unwritten" "$SPECD_N SPEC'D features"
 } > "$REPORT"
 
 cat "$REPORT"
