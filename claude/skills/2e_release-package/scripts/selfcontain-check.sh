@@ -361,12 +361,19 @@ B11_N=0
 if [ ! -s "$TMP/s25" ]; then
   add B11 warn "02-scope.md" "no §2.5 per-PRD membership table found — per-PRD membership cannot be cross-checked"
 fi
-find "$PKG/projects" -name '*-PRD-*.md' ! -name '*manifest*' 2>/dev/null | sort | while IFS= read -r F; do
+# Scan the PRD directory itself, not a filename pattern. A glob like '*-PRD-*.md'
+# silently drops PRDs on the legacy naming convention — PROJ-1's
+# `4_delivery-phase-1-product-prd.md` and its siblings match no such pattern, and a
+# check that skips a file without saying so is worse than no check at all. Everything
+# under a project's PRDs/ directory is a PRD unless it is a manifest or a review record.
+find "$PKG/projects" -path '*/PRDs/*.md' \
+  ! -name '*manifest*' ! -name '*review*' ! -name 'linear-import.md' 2>/dev/null \
+  | sort | while IFS= read -r F; do
   REL="$(printf '%s' "$F" | sed "s|^$PKG/||")"
-  # §2.5 keys PRDs by their short id (`PROJ-9-PRD-1`), not by filename. Take the id
-  # from the filename and match it backtick-delimited, so PRD-1 cannot match PRD-16.
+  # §2.5 keys modern PRDs by short id (`PROJ-9-PRD-1`) and legacy ones by filename.
+  # Try the id first; fall back to the filename so neither convention is skipped.
   KEY="$(basename "$F" | grep -ohE '^PROJ-[0-9]+-PRD-[0-9]+' || true)"
-  [ -z "$KEY" ] && continue
+  [ -z "$KEY" ] && KEY="$(basename "$F")"
 
   MARKER="$(grep -m1 '^\*\*R1 scope:\*\*' "$F" 2>/dev/null || true)"
   if [ -z "$MARKER" ]; then
@@ -391,7 +398,7 @@ find "$PKG/projects" -name '*-PRD-*.md' ! -name '*manifest*' 2>/dev/null | sort 
   fi
 done
 
-B11_N="$(find "$PKG/projects" -name '*-PRD-*.md' ! -name '*manifest*' 2>/dev/null | wc -l | tr -d ' ')"
+B11_N="$(find "$PKG/projects" -path '*/PRDs/*.md' ! -name '*manifest*' ! -name '*review*' ! -name 'linear-import.md' 2>/dev/null | wc -l | tr -d ' ')"
 
 # --------------------------------------------------------- report
 
