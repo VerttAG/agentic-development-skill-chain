@@ -175,7 +175,25 @@ fi
 # Everything else blocks.
 jq -e "${WAVE_KEY}.advisory_severities | type == \"array\"" "$CFG" >/dev/null \
   || fail "waves.${WAVE}.advisory_severities missing or not an array in $CFG"
-mapfile -t ADVISORY_SEVERITIES < <(jq -r "${WAVE_KEY}.advisory_severities[] | ascii_downcase" "$CFG")
+mapfile -t ADVISORY_CONFIGURED < <(jq -r "${WAVE_KEY}.advisory_severities[] | ascii_downcase" "$CFG")
+
+# `critical` and `blocker` are never advisory, whatever the config says. A wave gate
+# that can be configured to wave a critical finding through is not a gate. The floor
+# is applied to the advisory LIST rather than at each comparison, so all three
+# consumers of ADVISORY_JSON below inherit it and cannot drift apart.
+ADVISORY_SEVERITIES=()
+ADVISORY_REFUSED=()
+for sev in "${ADVISORY_CONFIGURED[@]:-}"; do
+  [[ -z "$sev" ]] && continue
+  case "$sev" in
+    critical|blocker) ADVISORY_REFUSED+=("$sev") ;;
+    *)                ADVISORY_SEVERITIES+=("$sev") ;;
+  esac
+done
+if [[ "${#ADVISORY_REFUSED[@]}" -gt 0 ]]; then
+  echo "   ⚠ advisory_severities lists ${ADVISORY_REFUSED[*]} — ignored; these always block"
+fi
+
 if [[ "${#ADVISORY_SEVERITIES[@]}" -eq 0 ]]; then
   ADVISORY_JSON='[]'
 else
