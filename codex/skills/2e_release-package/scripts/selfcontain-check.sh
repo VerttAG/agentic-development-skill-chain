@@ -146,7 +146,24 @@ done < "$TMP/quoted"
 # --------------------------------------------------------- B4 · leakage
 
 # A story named in §1 (in-scope) must not also appear in §2 (excluded) unless its §1
-# row is marked PARTIAL — the deliberate split 2d_release-scope allows.
+# row DECLARES the split — the deliberate partial inclusion 2d_release-scope allows.
+#
+# Two declarations are accepted, because the index carries two different axes and one
+# token cannot serve both:
+#
+#   1. `PARTIAL` in the coverage column — the story is only partly specified.
+#   2. An inline exclusion qualifier naming §2, e.g.
+#        "*(`Umplanen` + rebook ACs excluded — §2)*"
+#      — the FEATURE is fully specified, so `SPEC'D` is correct, while the STORY is
+#      only partly in the slice because the excluded ACs deliver a DIFFERENT feature.
+#
+# R1's `P1-US10` is the worked example: it delivers IC-15/IC-16/IC-18/IC-19/IC-20 in
+# full, and its `Umplanen` and rebook ACs deliver IC-17 (P5) and IC-44 (P2). Writing
+# `PARTIAL` there to satisfy this check would misstate coverage — those features are
+# not partially specified — and move the SPEC'D/PARTIAL counts away from the truth to
+# silence a story-level warning. Coverage describes the feature; this check describes
+# the story. Accepting the qualifier keeps both honest instead of trading one for the
+# other.
 awk '/^# §1 · /{p=1;next} /^# §1\.5 · /{p=0} p' "$SCOPE" > "$TMP/s1"
 awk '/^# §2 · /{p=1;next} /^# §3 · /{p=0} p' "$SCOPE" > "$TMP/s2"
 # Only PROJECT-QUALIFIED story IDs are comparable. A bare "US-3" means a different
@@ -161,8 +178,14 @@ awk -F'|' 'NF>2 {print $2}' "$TMP/s2" | grep -ohE 'P[0-9]+-US[0-9]+' | sort -u >
 comm -12 "$TMP/s1us" "$TMP/s2us" > "$TMP/both" || true
 while IFS= read -r U; do
   [ -z "$U" ] && continue
-  if grep -F "$U" "$TMP/s1" | grep -q 'PARTIAL'; then continue; fi
-  add B4 warn "02-scope.md" "$U appears in both the slice and the exclusions with no PARTIAL marking"
+  ROWS="$(grep -F "$U" "$TMP/s1")"
+  # (1) coverage token
+  printf '%s' "$ROWS" | grep -q 'PARTIAL' && continue
+  # (2) inline exclusion qualifier pointing at §2 — both words required, so an
+  #     unrelated row mentioning "§2" or "excluded" alone does not silence this.
+  printf '%s' "$ROWS" | grep -qi 'exclude[sd]\?' \
+    && printf '%s' "$ROWS" | grep -q '§2' && continue
+  add B4 warn "02-scope.md" "$U appears in both the slice and the exclusions with no PARTIAL marking and no inline '… excluded — §2' qualifier"
 done < "$TMP/both"
 
 # --------------------------------------------------------- B5 · gap honesty
