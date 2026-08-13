@@ -195,7 +195,9 @@ If `0_context/existing-state.md` exists (brownfield discovery), summarize the as
 
 ### 7. Write `02-scope-and-decisions.md` (Single Source Of Truth)
 
-The one canonical file for cross-cutting facts:
+The one canonical file for cross-cutting facts — **with one exception: where the project keeps a
+`<PROJ>-open-decisions.md` beside its PRDs, that file is canonical for the open decisions and this
+one reproduces it. See the note at the end of this step.**
 
 - **Vocabulary:** a table of domain terms with meanings. Preserve product-specific or non-English terms exactly; note spelling conventions. These are product terms, not incidental labels — they must not be renamed silently.
 - **Invariant rules that must not drift:** product rules that hold across all phases and surfaces, enforced in domain/server logic, not just UI.
@@ -213,6 +215,22 @@ The one canonical file for cross-cutting facts:
 Other package files reference these sections by name instead of restating them. If an open item affects UI/UX work, reference its ID from `04-ui-handoff.md` and state whether the designer may proceed with an assumption or must wait. If an open item affects engineering, reference its ID from `05-developer-handoff.md` and state whether implementation is blocked, can proceed behind an assumption, or belongs on the developer meeting agenda.
 
 When review decision records exist, read them as source material but do not make external readers reconstruct the current state from them. Distill their outcomes into `02-scope-and-decisions.md`: resolved items become resolved decisions; deferred or still-open items become open decisions with owner, impact, and next decision point. `07-review-changelog.md` remains the reader-facing "what changed" narrative. `08-review-decisions/` is only the detailed audit trail for readers who need the full rationale.
+
+#### ⚠️ If the project keeps a canonical open-decisions register, reproduce it — do not re-derive it
+
+Check for `<PRD-dir>/<PROJ>-open-decisions.md` **before** distilling anything. Where it exists it is
+the **canonical live register** and this handoff is a copy of it:
+
+- **Reproduce its rows verbatim** into the open half of the register. Do not re-distill open items
+  from the review records — that produces a second, silently diverging list.
+- **Say where the canonical copy lives**, so a reader who wants to change a decision edits the right
+  file. A handoff run is a dated snapshot; an open decision is live state.
+- **Resolved decisions stay yours** to distill. Only the open half is delegated.
+
+Where no such file exists, distil as above — and if the project has open decisions worth tracking
+between runs, **propose creating one**. The failure this prevents is concrete: a register that lives
+only inside handoff runs is invisible to the release packager, which reads only the concept and the
+PRD folder, so a built package shows the PRDs with no sign that any decision is unresolved.
 
 ### 8. Write `04-ui-handoff.md` (UI/UX Expert)
 
