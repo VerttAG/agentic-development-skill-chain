@@ -23,7 +23,8 @@
 #   A4  PRD manifest exists
 #   A5  no unmarked superseded PRD directory inside the PRD folder
 #   A6  every PRD carries at least one user-story heading
-#   A7  handoff freshness — latest handoff run newer than the latest PRD commit
+#   A7  handoff freshness — the newest handoff RUN was produced after the latest PRD commit
+#       (measured from the run directory's birth, so editing an old run cannot fake freshness)
 #
 # Deliberately NOT checked: architecture, wave plans, state.json. This repo is on
 # the discovery track, where a PROJ is complete at step 2 (0_chain-guide).
@@ -201,7 +202,22 @@ for P in $PROJS; do
     [ -d "$REPO_ROOT/$PDIR/$h" ] && { HDIR="$PDIR/$h"; break; }
   done
   if [ -n "$HDIR" ]; then
-    LAST_HANDOFF="$( cd "$REPO_ROOT" && git log -1 --format=%ct -- "$HDIR" 2>/dev/null || true )"
+    # "When was a handoff run last PRODUCED", not "when was anything under 8_handoff/ last
+    # touched". Those differ, and the difference is load-bearing: editing any historical run —
+    # a superseded marker, a pointer, a typo — would otherwise mark every handoff fresh and
+    # silence this check without a handoff having been generated. Observed doing exactly that.
+    #
+    # The newest run directory's BIRTH commit is the honest signal: it is written once, at
+    # generation, and later edits inside the run cannot move it.
+    NEWEST_RUN="$( cd "$REPO_ROOT" && find "$HDIR" -maxdepth 1 -type d -name '*handoff*' 2>/dev/null | sort | tail -1 )"
+    if [ -n "$NEWEST_RUN" ]; then
+      LAST_HANDOFF="$( cd "$REPO_ROOT" && git log --diff-filter=A --format=%ct -- "$NEWEST_RUN" 2>/dev/null | tail -1 || true )"
+    else
+      LAST_HANDOFF=""
+    fi
+    # Fall back to the old proxy only where the run has no recorded birth (unstaged, or a
+    # layout this rule does not know). A weaker check beats none.
+    [ -z "$LAST_HANDOFF" ] && LAST_HANDOFF="$( cd "$REPO_ROOT" && git log -1 --format=%ct -- "$HDIR" 2>/dev/null || true )"
     LAST_PRD="$( cd "$REPO_ROOT" && git log -1 --format=%ct -- "$PRDDIR" 2>/dev/null || true )"
     LAST_HANDOFF="${LAST_HANDOFF:-0}"; LAST_PRD="${LAST_PRD:-0}"
     if [ "$LAST_HANDOFF" -gt 0 ] && [ "$LAST_PRD" -gt "$LAST_HANDOFF" ]; then
