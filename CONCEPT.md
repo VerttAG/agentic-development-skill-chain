@@ -9,7 +9,7 @@ story worktrees, gotcha channel for parallel waves, Claude Code mapping §6b)*
 *(v0.6: ponytail adopted as a ready-made plugin — decided; manifest schema
 following the claude-skills taxonomy in Stage 2; consolidated CLI list §7)*
 *(v0.7: executive summary + overall diagram)*
-*(v0.8: checkpoint skill `4a_checkpoint` — structured reconcile loop
+*(v0.8: checkpoint skill `4a-checkpoint` — structured reconcile loop
 for CP1, bootstrap validation, and CP2/PR comments)*
 *(v0.9: PRD source Jira + Teklens — import adapter `2d_prd-import`,
 local PRD snapshot, Jira sync-back, commit IDs carrying Jira keys)*
@@ -26,7 +26,7 @@ evidence-gated; "scripts ship with skills" convention + inventory §7)*
 *(v0.14: deterministic output layer — "LLM decides, scripts render":
 script specifications with input/output/exit contracts, template
 inventory, JSON schemas validated on write)*
-*(v0.15: `0b_intake` fully specified as a collaborative skill —
+*(v0.15: `0b-intake` fully specified as a collaborative skill —
 extraction with provenance markers + developer interview for gaps,
 assumptions, and code inconsistencies; near-greenfield variant)*
 *(v0.16: cross-model review — skill `cross-review`: Codex CLI as an
@@ -47,8 +47,10 @@ cheap shared-checkout middle tier inside the writer lane; gotcha
 channel and gate enforcement given provider-neutral mechanisms;
 P3 authorship and state.sh sequencing specified)*
 **Date:** 2026-07-14
-**Basis:** the repository's aligned Codex + Claude SkillChain 0–7
-(`codex/skills/`, `claude/skills/`) at the current main branch
+**Basis:** the repository's SkillChain 0–7 at the current main branch.
+*(Written against the then-current parallel `codex/skills/` + `claude/skills/`
+trees; those were collapsed into a single canonical `skills/` tree in 2.0 —
+see [docs/agent-portability.md](docs/agent-portability.md).)*
 
 **Settled decisions (v0.2):**
 - The framework is optimized against our own product; distributability
@@ -62,9 +64,9 @@ P3 authorship and state.sh sequencing specified)*
 
 ---
 
-*(v0.20: product level above the PROJ — `0a_product-vision`
+*(v0.20: product level above the PROJ — `0a-product-vision`
 (docs/PRODUCT.md + numbered PROJ map in specs/product-roadmap.md) and
-`0c_bootstrap` (stack into docs/ARCHITECTURE.md § Stack as the single
+`0c-bootstrap` (stack into docs/ARCHITECTURE.md § Stack as the single
 source of truth, real scaffold verified green, root AGENTS.md +
 CLAUDE.md pointer); the design-system showcase gets a fixed structure
 and a drift gate)*
@@ -80,7 +82,7 @@ from Jira, where Teklens creates/enriches them (TODO, Stage 3; adds
 status/PR-link sync-back). Downstream, both modes are identical. The human
 intervenes at exactly two points: approving architecture + plan, and
 merging the PR. Both checkpoints run as a structured reconcile loop
-(`4a_checkpoint`): feedback is collected point by point, recorded in a
+(`4a-checkpoint`): feedback is collected point by point, recorded in a
 decision log, and written back into all affected artifacts in a cascade.
 Everything in between runs autonomously; on defined stop conditions the
 run is parked in a controlled way (rescue branch, stop report), and every
@@ -131,7 +133,7 @@ every PROJ keeps them current and small.
 ```
                HUMAN ◇ CP1                                    HUMAN ◇ CP2
            approve arch + plan                            PR review + merge
-           (4a_checkpoint:                               (reconcile loop for
+           (4a-checkpoint:                               (reconcile loop for
             reconcile + decision log)                     comments, via gh)
                   │                                                ▲
                   │                                                │
@@ -156,7 +158,7 @@ every PROJ keeps them current and small.
 ```
 
 **Where we stand:** All concept questions are decided (§11). Next step:
-Stage 1 of the roadmap (§10) — phase runner, `8_delivery`, findings
+Stage 1 of the roadmap (§10) — phase runner, `8-delivery`, findings
 ledger, autonomy policy. Then the bootstrap (Stage 2) while the codebase
 is still small.
 
@@ -210,22 +212,23 @@ pull requests fully automatically — with exactly two human checkpoints.
 
 ## 2. Process Overview
 
-Once per product, before any PROJ: a new build runs `0a_product-vision`
+Once per product, before any PROJ: a new build runs `0a-product-vision`
 (what the product is and is not, plus the numbered PROJ map that allocates
-PROJ numbers and their order) and then `0c_bootstrap` (stack decided into
+PROJ numbers and their order) and then `0c-bootstrap` (stack decided into
 `docs/ARCHITECTURE.md` § Stack, real scaffold, agent files). An existing
-codebase runs `0b_intake` instead — the same curated baseline, extracted
+codebase runs `0b-intake` instead — the same curated baseline, extracted
 rather than decided. Exactly one of the two paths.
 
 The repository's existing pre-PRD flow is preserved unchanged. A PROJ
-starts with `1_brainstorming`, optionally follows the UI branch
-(`1b_visual-companion` → optional `1c_frontend-design` →
-`1d_ui-mockup` → optional `1e_concept-sync`), and then runs
-`2_requirements-engineer`. On the product-discovery track it may continue
-through `2b_handoff-package` and `2c_review-reconcile`, then stops; P3–P8
+starts with `1-brainstorming`, optionally follows the UI branch
+(`1b-visual-companion` → optional `1c-frontend-design` *or*
+`1c-design-intake` where an external designer delivers the system →
+`1d-ui-mockup` → optional `1e-concept-sync`), and then runs
+`2-requirements-engineer`. On the product-discovery track it may continue
+through `2b-handoff-package` and `2c-review-reconcile`, then stops; P3–P8
 never run. Only a full-chain PROJ enters P2d/P3 below. Existing generated
 `2b_handoff/` package runs remain immutable and are unrelated to the
-`8_delivery` skill.
+`8-delivery` skill.
 
 ```
         ONCE PER PRODUCT (new build)     |  ONCE PER REPO (existing code)
@@ -252,7 +255,7 @@ never run. Only a full-chain PROJ enters P2d/P3 below. Existing generated
   ┌───────────▼───────────┐
   │ P4  PLANNING          │  waves, dependencies, contracts, gate config
   └───────────┬───────────┘
-              ▼ ◇ CHECKPOINT 1 (human, via 4a_checkpoint):
+              ▼ ◇ CHECKPOINT 1 (human, via 4a-checkpoint):
                 reconcile loop → decision log → cascade updates
                 into artifacts → state.json "approved" unlocks P0
   ┌───────────────────────┐
@@ -285,31 +288,31 @@ telemetry (Ralph iterations, gate failures, fix spawns), statusline
 
 ## 3. Brownfield Model
 
-### Greenfield Counterpart — Skill `0a_product-vision`
+### Greenfield Counterpart — Skill `0a-product-vision`
 
 The baseline below is reached by extraction because code exists. On a NEW
 product there is nothing to extract, so the same `docs/PRODUCT.md` slot is
-reached by decision instead: `0a_product-vision` interviews the product
+reached by decision instead: `0a-product-vision` interviews the product
 owner (what it is, who uses it, what it deliberately is NOT, when it is a
 success, what is fixed) and cuts the product into a numbered PROJ map in
 `specs/product-roadmap.md` — one sentence of user outcome per PROJ, plus
 `Depends on` and `Status`. That map is where PROJ numbers are allocated,
-where `chain-guide` reads the ordering, and where `1_brainstorming` takes
+where `chain-guide` reads the ordering, and where `1-brainstorming` takes
 its scope boundary from. It is NOT injected into context bundles, so it
 costs no token budget; `docs/PRODUCT.md` keeps its 30-line cap.
 
-`0c_bootstrap` follows on a new build: it decides the stack and records it
+`0c-bootstrap` follows on a new build: it decides the stack and records it
 in `docs/ARCHITECTURE.md` § Stack — the single source of truth for
 technology, read by every skill that needs a stack fact and never restated
 — runs the real scaffold, verifies `build` and `test` green, and writes
-root `AGENTS.md` plus the `CLAUDE.md` pointer. `3_architecture` inherits
+root `AGENTS.md` plus the `CLAUDE.md` pointer. `3-architecture` inherits
 that table and documents consequences; it never re-opens the choice.
 
 Run exactly one baseline path — `0a` + `0c` for a new build, `0b` for an
 existing codebase. Neither overwrites the other's output: if `docs/PRODUCT.md`
 already exists, both merge and record retirements.
 
-### First Run (Bootstrap) — Skill `0b_intake`
+### First Run (Bootstrap) — Skill `0b-intake`
 
 The first run on an existing product starts with a one-time intake,
 owned by a dedicated skill. Its core principle: **extraction and
@@ -336,18 +339,18 @@ codebase handles errors via X in ~60% of cases and Y in ~40% — which
 is the rule going forward?" The answer becomes a GUIDELINES rule; the
 losing pattern becomes a known-debt note, not silently rewritten.
 
-**Step 3 — Reconcile & seal** via the `4a_checkpoint` loop (decision
+**Step 3 — Reconcile & seal** via the `4a-checkpoint` loop (decision
 log; generated docs are hypotheses, not truth). Final docs must pass
 the file caps (§5) — the interview output is curated, not dumped.
 
 **Step 4 — Commit** as the initial curation baseline. From here on,
-P7 curation owns all updates; `0b_intake` is re-run only as a
+P7 curation owns all updates; `0b-intake` is re-run only as a
 deliberate drift audit, never automatically.
 
 **Files produced:** `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`
 (+ `docs/architecture/` details), `docs/GUIDELINES.md`,
 `docs/DESIGN-SYSTEM.md` (brownfield: extract tokens from the code; if
-none exist, record a pointer to `1c_frontend-design` instead of
+none exist, record a pointer to `1c-frontend-design` instead of
 inventing one), `docs/components.md` (generated from the doc block above each
 component export; the interview supplies the purpose lines no parser
 can extract), the security baseline and test conventions, and an
@@ -400,7 +403,7 @@ from.
 
 **Mode A — local repo PRDs (DEFAULT for now):** PRDs are written
 directly into the repo, as today — via Skill 2
-(`2_requirements-engineer`) or by hand. No import step, no sync-back;
+(`2-requirements-engineer`) or by hand. No import step, no sync-back;
 the files in `specs/PROJ-<X>-<theme>/2_PRDs/` simply ARE the snapshot. **The new
 chain is tested in this mode first.**
 
@@ -428,7 +431,7 @@ The import skill `2d_prd-import` (build in Stage 3):
    chain needs DETERMINISTICALLY verifiable ACs (Ralph loop = test
    commands). The import checks every story: are the ACs phrased
    testably? Missing/vague ACs → findings list that is either decided at
-   the CP1 reconcile (via `4a_checkpoint`) or played back as a Jira
+   the CP1 reconcile (via `4a-checkpoint`) or played back as a Jira
    comment.
 
 **Sync-back (Mode B only, during/after the run):**
@@ -494,7 +497,7 @@ JSON-lines contract, ledger integration, budgets, and identical failure
 semantics in both directions; it does not make either third-party plugin
 a core dependency.
 
-**Three call sites (analogous to `4a_checkpoint`):**
+**Three call sites (analogous to `4a-checkpoint`):**
 
 | Call site | Artifacts reviewed | Review focus |
 |---|---|---|
@@ -541,11 +544,11 @@ the PR body ("cross-review: model-opposite fallback") — never silent.
   model look it over" literal and structured.
 - Then ◇ Checkpoint 1 — handled by the checkpoint skill (below).
 
-### Checkpoint Skill `4a_checkpoint` (new)
+### Checkpoint Skill `4a-checkpoint` (new)
 
 Checkpoints are not a "looks good? yes/no" question but a structured
 reconcile loop (generalizing the proven pattern from
-`2c_review-reconcile`):
+`2c-review-reconcile`):
 
 1. **Present:** a compact review package instead of raw artifacts —
    decision summary (delta), wave overview with rationales, open risks
@@ -563,7 +566,7 @@ reconcile loop (generalizing the proven pattern from
    (the consistency check from Skill 4).
 5. **Seal the approval:** create the minimal `state.json` if it does not
    yet exist — using the skill-shipped `state.sh` from
-   `4a_checkpoint/scripts/` (the identical helper `4b_setup` later
+   `4a-checkpoint/scripts/` (the identical helper `4b-setup` later
    copies into the repo at P0) — then transition it to `approved` with
    a decision-log reference. Only this unlocks the phase runner for P0.
 
@@ -572,14 +575,14 @@ The same loop is used in three places:
 - **Bootstrap checkpoint** (§3): validation of the intake first drafts
   (PRODUCT/ARCHITECTURE/GUIDELINES) with the same point-by-point
   pattern.
-- **CP2** (PR): `8_delivery` uses the same reconcile pattern for PR
+- **CP2** (PR): `8-delivery` uses the same reconcile pattern for PR
   review comments (via `gh`): classify
   (`fix now` / `debt` / `reject with rationale`), fix spawns, ledger
   update, push, re-request review. Principle-level feedback
   ("I never want to see this again") is harvested as an AGENTS.md/
   GUIDELINES candidate.
 
-### P0 — Setup (Skill `4b_setup`, new; replaces the FIRST-ACTION block from Skill 5)
+### P0 — Setup (Skill `4b-setup`, new; replaces the FIRST-ACTION block from Skill 5)
 
 Once per PROJ, fully automatic:
 
@@ -835,7 +838,7 @@ change what context a role receives.
 **Never injected:** whole PRDs, wave plans of other stories,
 progress.md, complete SKILL.md texts (today's biggest waste in
 Skill 5 — granular `references/` instead of whole skills). New skills
-(`8_delivery` etc.) keep their SKILL.md lean and move detail into
+(`8-delivery` etc.) keep their SKILL.md lean and move detail into
 `references/` that only the relevant phase loads.
 
 ### agent.md Protocol (Layer 4)
@@ -1097,7 +1100,7 @@ and model versions: same data in → byte-identical structure out.
 
 **Delivery convention:** every deterministic step is a script inside
 its skill's `scripts/` directory, every rendered artifact has a
-template inside the skill's `templates/` directory. `4b_setup` copies
+template inside the skill's `templates/` directory. `4b-setup` copies
 both into the repo (`scripts/`, `templates/`) and commits them —
 versioned with the repo, testable outside sessions, identical behavior
 on every machine. Skill 5's `scripts/wave-gate.sh` is the existing
@@ -1112,20 +1115,20 @@ silently at render time.
 
 | Script (skill) | Input | Output | Behavior / exit |
 |---|---|---|---|
-| `preflight.sh` (4b_setup) | CLI list §7 (embedded), env | report to stdout; state.json `preflight` block | checks `command -v` + auth per tool; exit ≠ 0 on any missing HARD tool (stop condition); skippable tools → logged skip |
-| `compile-context-bundles.mjs` (4b_setup) | root `AGENTS.md`, `docs/*`, `specs/PROJ-<X>-<theme>/*`, injection matrix §5 | one canonical bundle per role plus Claude/Codex projections | counts tokens and hashes both provider projections; exit ≠ 0 on budget breach or semantic drift |
-| `state.sh` (4b_setup) | `get <path>` / `set <path> <value>` / `transition <phase> <status>` | state.json (validated) | sole write path to state.json; schema-validates; illegal phase transitions exit ≠ 0 |
-| `wave-gate.sh` (5_executing, exists) | wave N, PROJ, config | gate verdict; PASSED block in progress.md; findings → ledger | extended: `sonar` local scan + secrets check, component-registry `--check`; any Critical/High → exit ≠ 0 |
-| `gen-component-registry.mjs` (5_executing) | `src/components/**`, `src/features/*/components/**` | `docs/components.md` | reads the doc block above each component export; `--check` exits ≠ 0 on a stale registry, a component without a doc block, or a component without its `id="<kebab-name>"` section on the showcase page (wave-gate step 6). The registry is never hand-written — one source, the component file |
+| `preflight.sh` (4b-setup) | CLI list §7 (embedded), env | report to stdout; state.json `preflight` block | checks `command -v` + auth per tool; exit ≠ 0 on any missing HARD tool (stop condition); skippable tools → logged skip |
+| `compile-context-bundles.mjs` (4b-setup) | root `AGENTS.md`, `docs/*`, `specs/PROJ-<X>-<theme>/*`, injection matrix §5 | one canonical bundle per role plus Claude/Codex projections | counts tokens and hashes both provider projections; exit ≠ 0 on budget breach or semantic drift |
+| `state.sh` (4b-setup) | `get <path>` / `set <path> <value>` / `transition <phase> <status>` | state.json (validated) | sole write path to state.json; schema-validates; illegal phase transitions exit ≠ 0 |
+| `wave-gate.sh` (5-executing, exists) | wave N, PROJ, config | gate verdict; PASSED block in progress.md; findings → ledger | extended: `sonar` local scan + secrets check, component-registry `--check`; any Critical/High → exit ≠ 0 |
+| `gen-component-registry.mjs` (5-executing) | `src/components/**`, `src/features/*/components/**` | `docs/components.md` | reads the doc block above each component export; `--check` exits ≠ 0 on a stale registry, a component without a doc block, or a component without its `id="<kebab-name>"` section on the showcase page (wave-gate step 6). The registry is never hand-written — one source, the component file |
 | `ledger.mjs` (quality) | raw findings (JSON lines from all sources) | deduped, normalized `findings.json`; fix-queue clusters | dedupe key file/line/category; severity mapping table embedded; idempotent (re-run safe) |
 | `cross-review.sh` (cross-review) | mode, artifact files, `author_provider` + `author_model`, prompt template | provider-attributed findings JSON lines → `ledger.mjs` | routes to opposite provider; fallback: model-opposite via `claude -p --model` (logged + flagged); joint artifacts launch both adapters concurrently; max 2 rounds |
 | `review-with-claude.sh` (cross-review) | rendered prompt + limits | normalized Claude JSON lines | invokes `claude -p` read-only; validates output; timeout/cancel as one process group |
 | `review-with-codex.sh` (cross-review) | rendered prompt + limits | normalized Codex JSON lines | invokes `codex exec` read-only; validates output; timeout/cancel as one process group |
 | `harvest-debt.sh` (quality) | repo tree | `ponytail:` markers as ledger records (status `deferred`) | grep-based; links marker → file/line; idempotent |
-| `curation-caps.sh` (7_documentation) | `docs/*`, `src/**/agent.md` | cap report | exit ≠ 0 on any cap breach (PRODUCT ½ page, ARCHITECTURE 200 lines, DESIGN-SYSTEM 80 lines, agent.md 100 lines) — curation must shrink before P7 completes |
-| `conflict-probe.sh` (8_delivery) | PROJ branch, `main` | conflict report (JSON: none/trivial/semantic per file) | throwaway worktree, `merge --no-commit`; never touches real branches; classification by file type heuristics |
-| `render-pr-body.mjs` (8_delivery) | state.json + findings.json + template | PR body markdown | pure render, no side effects |
-| `ci-poll.sh` (8_delivery) | PR number | check status JSON; failed-check logs verbatim | wraps `gh pr checks --watch`; timeout from config; exit ≠ 0 after timeout |
+| `curation-caps.sh` (7-documentation) | `docs/*`, `src/**/agent.md` | cap report | exit ≠ 0 on any cap breach (PRODUCT ½ page, ARCHITECTURE 200 lines, DESIGN-SYSTEM 80 lines, agent.md 100 lines) — curation must shrink before P7 completes |
+| `conflict-probe.sh` (8-delivery) | PROJ branch, `main` | conflict report (JSON: none/trivial/semantic per file) | throwaway worktree, `merge --no-commit`; never touches real branches; classification by file type heuristics |
+| `render-pr-body.mjs` (8-delivery) | state.json + findings.json + template | PR body markdown | pure render, no side effects |
+| `ci-poll.sh` (8-delivery) | PR number | check status JSON; failed-check logs verbatim | wraps `gh pr checks --watch`; timeout from config; exit ≠ 0 after timeout |
 | `run-phase.sh` (framework root) | phase id, PROJ | launches Claude + Codex lane processes concurrently | validates legal transition, assigns writer/reviewer roles, captures provider outputs, waits/cancels as a unit, records lane start/end in state.json |
 | `render-report.mjs` (framework root) | state.json + findings.json of all PROJs in the run + template | `specs/morning-report-<date>.md` | pure render; also emits the one-liner for the push notification |
 
@@ -1133,13 +1136,13 @@ silently at render time.
 
 | Template (skill) | Data source | Rendered artifact | When |
 |---|---|---|---|
-| `pr-body.md.tmpl` (8_delivery) | state.json + findings.json | PR description: built scope, gate/QA results, known gaps, debt section, 📚 doc changes | P8 step 3 |
+| `pr-body.md.tmpl` (8-delivery) | state.json + findings.json | PR description: built scope, gate/QA results, known gaps, debt section, 📚 doc changes | P8 step 3 |
 | `morning-report.md.tmpl` (framework) | state.json + findings.json (all PROJs) | `specs/morning-report-<date>.md` | run end |
 | `stop-report.md.tmpl` (framework) | state.json + verbatim error capture | `specs/PROJ-<X>-<theme>/5_progress/stop-report.md` | on stop condition |
-| `decisions.md.tmpl` (4a_checkpoint) | reconcile-loop results | `specs/PROJ-<X>-<theme>/decisions.md` (append per checkpoint) | CP1/bootstrap/CP2 |
-| `progress-blocks.md.tmpl` (5_executing) | state.json | the structured blocks in progress.md (wave gate PASSED, Ralph iterations, QA results) | after each gate/loop |
+| `decisions.md.tmpl` (4a-checkpoint) | reconcile-loop results | `specs/PROJ-<X>-<theme>/decisions.md` (append per checkpoint) | CP1/bootstrap/CP2 |
+| `progress-blocks.md.tmpl` (5-executing) | state.json | the structured blocks in progress.md (wave gate PASSED, Ralph iterations, QA results) | after each gate/loop |
 | `jira-comment.md.tmpl` (2d_prd-import, Mode B) | state.json + findings.json | status/PR-link/debt comments on tickets | sync-back (TODO) |
-| `agent-md-entry.md.tmpl` (5_executing) | learning (free text) + date + commit SHA | uniform agent.md entry block | on write — the one place where LLM content flows in, but inside a fixed frame |
+| `agent-md-entry.md.tmpl` (5-executing) | learning (free text) + date + commit SHA | uniform agent.md entry block | on write — the one place where LLM content flows in, but inside a fixed frame |
 | `cross-review-prompt.md.tmpl` (cross-review) | mode + artifact list + author provider | provider-neutral adversarial prompt rendered for either CLI | P3, P4, P7 |
 
 Free-form LLM text still exists — analysis, findings verification,
@@ -1246,7 +1249,7 @@ agent-browser smoke tests.
 ## 10. Implementation Roadmap (each stage usable on its own)
 
 1. **Stage 1 — dependency-complete overnight core:** minimal
-   `4a_checkpoint` for CP1 approval + `4b_setup` for P0, autonomy policy
+   `4a-checkpoint` for CP1 approval + `4b-setup` for P0, autonomy policy
    (preserve read-only Skill 6, add the P6 controller/fix loop, unify
    escalation rules, stop report, morning report), P8
    delivery (including the CP2 reconcile loop for PR comments), findings
@@ -1259,10 +1262,10 @@ agent-browser smoke tests.
    full-chain flow can run unattended without compact roulette. The
    discovery track remains outside the runner.
 2. **Stage 2 — bootstrap & full context system (now, while cheap):**
-   `0b_intake` skill (scan & draft with provenance markers → developer
-   interview → reconcile via `4a_checkpoint` → seal; see §3), extend
-   `4a_checkpoint` from the Stage 1 minimum to bootstrap reuse, extend
-   `4b_setup` with the context compiler and provider projections,
+   `0b-intake` skill (scan & draft with provenance markers → developer
+   interview → reconcile via `4a-checkpoint` → seal; see §3), extend
+   `4a-checkpoint` from the Stage 1 minimum to bootstrap reuse, extend
+   `4b-setup` with the context compiler and provider projections,
    context-injector adapters (define the
    manifest schema following the claude-skills frontmatter taxonomy),
    install + parity-check Ponytail on Claude and Codex (§7), agent.md protocol +
@@ -1301,7 +1304,7 @@ agent-browser smoke tests.
 | Sonar | SonarQube Cloud, already set up (org/token/project) |
 | Execution mode | paired Claude + Codex lanes are the DEFAULT (one writer, one read-only peer); Mode 2 (shared-checkout team inside the writer lane, file-disjoint waves) as the cheap middle tier; Mode 3 (worktree writer processes + merge gate) opt-in, built only on telemetry evidence (Stage 4). Cost stays bounded via model tiering per role |
 | Parallelism cap | 3 (applies to Modes 2/3; framework.config, adjustable via telemetry) |
-| Skill numbering | dock on: `0a_product-vision`, `0c_bootstrap`, `0b_intake`, `2d_prd-import`, `cross-review`, `4a_checkpoint`, `4b_setup`, `8_delivery` |
+| Skill numbering | dock on: `0a-product-vision`, `0c-bootstrap`, `0b-intake`, `2d_prd-import`, `cross-review`, `4a-checkpoint`, `4b-setup`, `8-delivery` |
 | PRD source | TWO modes, downstream identical. Mode A (DEFAULT): PRDs written directly into the repo (existing structure) — the new chain is tested in this mode first. Mode B (TODO, Stage 3): Jira import, created/enriched via Teklens (teklens.ai); local snapshot = working truth per run; Jira keys in commits/PRs; sync-back |
 | PRD ownership | PM PRDs are raw input: developers enrich with technical stories, re-cut into buildable PRDs (in Jira for Mode B), and OWN the selection of the story set sent into the agentic loop — the framework checks AC quality, not scope |
 | Morning report | file in `specs/` (canonical) + best-effort notification at run end |

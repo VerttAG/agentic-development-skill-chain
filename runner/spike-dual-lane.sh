@@ -17,6 +17,17 @@
 # Exit:  0 all assertions passed · 1 any assertion failed
 set -uo pipefail
 
+# `setsid` is util-linux and absent on macOS. It is used only to put each lane in
+# its own process group so the kill-tree path (`kill -- -$PID`) reaches the whole
+# tree. Bash job control achieves the same thing portably: under `set -m` a
+# background job becomes its own process-group leader and $! is that PGID.
+if command -v setsid >/dev/null 2>&1; then
+  detach() { setsid "$@"; }
+else
+  set -m
+  detach() { "$@"; }
+fi
+
 TIMEOUT=300
 [ "${1:-}" = "--timeout" ] && TIMEOUT="${2:?}"
 
@@ -55,12 +66,12 @@ if ! command -v codex >/dev/null 2>&1 || ! codex login status >/dev/null 2>&1; t
 fi
 
 # Lanes are launched from the MAIN shell (no command substitution) so that
-# `wait` sees them, and under setsid so each lane is its own process group
+# `wait` sees them, each in its own process group (see the detach helper above)
 # and `kill -- -PID` reaches the whole tree without touching the spike.
 LANE_PID=""
 launch_claude() { # outfile [model] — sets LANE_PID
   local out="$1" model="${2:-}"
-  setsid bash -c 'cd "$1" && exec claude -p "$2" ${3:+--model "$3"} --allowedTools "Read,Grep,Glob"' \
+  detach bash -c 'cd "$1" && exec claude -p "$2" ${3:+--model "$3"} --allowedTools "Read,Grep,Glob"' \
     _ "$WORK" "$PROMPT" "$model" </dev/null >"$out" 2>&1 &
   LANE_PID=$!
 }
@@ -68,7 +79,7 @@ launch_codex() { # outfile — sets LANE_PID
   # --skip-git-repo-check: the spike workdir is a throwaway temp dir, not a
   # repo. Real runner lanes run inside the project repo and don't need it.
   local out="$1"
-  setsid bash -c 'cd "$1" && exec codex exec --sandbox read-only --skip-git-repo-check "$2"' \
+  detach bash -c 'cd "$1" && exec codex exec --sandbox read-only --skip-git-repo-check "$2"' \
     _ "$WORK" "$PROMPT" </dev/null >"$out" 2>&1 &
   LANE_PID=$!
 }
@@ -157,7 +168,7 @@ wait "$pid1" 2>/dev/null; wait "$pid2" 2>/dev/null
 # --- ledger guarantees (deterministic, no LLM) ----------------------------
 step "ledger guarantees: concurrent adds + reopen-on-re-report"
 LWORK="$(mktemp -d)"
-LEDGER="$REPO_ROOT/claude/skills/6_qa/scripts/ledger.mjs"
+LEDGER="$REPO_ROOT/skills/6-qa/scripts/ledger.mjs"
 mkdir -p "$LWORK/specs/PROJ-96-spike"
 (
   cd "$LWORK"
@@ -195,8 +206,8 @@ step "runner mechanics: stubbed writer failure -> peer cancelled, run parked"
 RWORK="$(mktemp -d)"
 STUB="$RWORK/stub-bin"
 mkdir -p "$STUB" "$RWORK/repo/specs/PROJ-98-spike" "$RWORK/repo/scripts"
-cp "$REPO_ROOT/claude/skills/4b_setup/scripts/state.sh" "$RWORK/repo/scripts/state.sh"
-cp "$REPO_ROOT/claude/skills/6_qa/scripts/ledger.mjs" "$RWORK/repo/scripts/ledger.mjs"
+cp "$REPO_ROOT/skills/4b-setup/scripts/state.sh" "$RWORK/repo/scripts/state.sh"
+cp "$REPO_ROOT/skills/6-qa/scripts/ledger.mjs" "$RWORK/repo/scripts/ledger.mjs"
 cat >"$STUB/claude" <<'STUBEOF'
 #!/bin/sh
 # stub writer lane: mimics a lane that starts the phase, then crashes

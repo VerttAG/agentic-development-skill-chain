@@ -1,0 +1,25 @@
+{
+  "$schema": "https://www.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "skill-chain",
+  "displayName": "Agentic Development Skill Chain",
+  "version": "2.0.0",
+  "description": "An opinionated 0-to-8 skill chain for agentic software development: product vision, brainstorming, requirements, architecture, wave plans, execution, QA, documentation and PR delivery, with two human checkpoints around an autonomous middle.",
+  "author": {
+    "name": "Aleksandar Bozic",
+    "email": "aleksandar.bozic@vertt.ch"
+  },
+  "homepage": "https://github.com/VerttAG/agentic-development-skill-chain",
+  "repository": "https://github.com/VerttAG/agentic-development-skill-chain",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "workflow",
+    "requirements",
+    "architecture",
+    "planning",
+    "tdd",
+    "qa",
+    "documentation",
+    "code-review"
+  ]
+}
