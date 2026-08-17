@@ -1,10 +1,11 @@
 # Agentic Development Skill Chain
 
-An opinionated skill chain for agentic software development, maintained in
-parallel for Codex and Claude, plus an agent workflow framework that runs
-the execution half of the chain unattended — dual provider lanes, machine-
-readable state, a findings ledger, and hard gates instead of good
-intentions.
+An opinionated skill chain for agentic software development — one canonical
+[Agent Skills](https://agentskills.io/specification) tree that installs into
+Claude Code, Codex, Cursor, Gemini CLI, Copilot, Amp, OpenCode and Zed alike —
+plus an agent workflow framework that runs the execution half of the chain
+unattended: dual provider lanes, machine-readable state, a findings ledger, and
+hard gates instead of good intentions.
 
 The chain turns a rough product idea into a buildable concept, explores UI
 shape when needed, writes requirements, creates architecture and
@@ -23,29 +24,29 @@ scaffold stood up, agent files written); an existing codebase goes through
 
 | Step | Skill | What it does |
 |------|-------|--------------|
-| 0 | `chain-guide` | Detect project state, route to the right next step |
-| 0a | `product-vision` | Once per product, new build: interview into `docs/PRODUCT.md` (what/who/non-goals) and cut the product into a numbered PROJ map in `specs/product-roadmap.md` |
-| 0b | `intake` | Once per repo: bootstrap the curated docs baseline from a code scan (provenance-marked drafts) + developer interview, reconciled via checkpoint, sealed as a commit |
-| 0c | `bootstrap` | Once per project, new build: decide the stack into `docs/ARCHITECTURE.md` § Stack, run the real scaffold, verify build/test green, write root `AGENTS.md` + `CLAUDE.md` pointer |
-| 1 | `brainstorming` | Explore the idea, allocate PROJ-X, write the concept |
-| 1b | `visual-companion` (opt) | Interactive layout exploration, project mode detection |
-| 1c | `frontend-design` (opt) | Design system — tokens, component catalog, showcase page. **Decides** it |
-| 1c | `design-intake` (opt) | The same artifacts **extracted** from an external designer's delivery, gated by a conformance pass. Alternative to `frontend-design` — run one, not both |
-| 1d | `ui-mockup` (UI req.) | HTML sitemap + per-screen mockups + implementation handoff. Authors no mockups in design-derived mode |
-| 1e | `concept-sync` (opt) | Reconcile iterated mockups back into the concept |
-| 2 | `requirements-engineer` | PRDs: user stories, acceptance criteria, edge cases |
-| 2b | `handoff-package` (opt) | Standalone zippable package for external experts |
-| 2c | `review-reconcile` (opt) | Resolve PRD review gaps point by point |
-| 2d | `release-scope` (opt) | Cross-PROJ release slice from a phased inventory: feature→US index, exclusions, gaps, forward-compat seams |
-| 2e | `release-package` (opt) | Freeze a release slice into a standalone, verified, commit-pinned package; gaps route back to the source PROJ |
-| 3 | `architecture` | PROJ-level tech design across all PRDs |
-| 4 | `writing-plans` | Wave-based implementation plans |
-| 4a | `checkpoint` | CP1/CP2/bootstrap as structured reconcile loops with a decision log; CP1 seals `state.json` to `CP1:approved` |
-| 4b | `setup` | P0 once per PROJ: branch, preflight, framework scripts into the repo, context bundles |
-| 5 | `executing` | Implement wave by wave with TDD, wave gates, debt markers |
-| 6 | `qa` | End-to-end QA; read-only finder in framework runs, findings into the ledger |
-| 7 | `documentation` | Human docs + curation of the long-lived `docs/` baseline behind form and truth gates |
-| 8 | `delivery` | Conflict probe, PR with rendered body, CI fix loop, CP2 comment reconcile |
+| 0 | `0-chain-guide` | Detect project state, route to the right next step |
+| 0a | `0a-product-vision` | Once per product, new build: interview into `docs/PRODUCT.md` (what/who/non-goals) and cut the product into a numbered PROJ map in `specs/product-roadmap.md` |
+| 0b | `0b-intake` | Once per repo: bootstrap the curated docs baseline from a code scan (provenance-marked drafts) + developer interview, reconciled via checkpoint, sealed as a commit |
+| 0c | `0c-bootstrap` | Once per project, new build: decide the stack into `docs/ARCHITECTURE.md` § Stack, run the real scaffold, verify build/test green, write root `AGENTS.md` + `CLAUDE.md` pointer |
+| 1 | `1-brainstorming` | Explore the idea, allocate PROJ-X, write the concept |
+| 1b | `1b-visual-companion` (opt) | Interactive layout exploration, project mode detection |
+| 1c | `1c-frontend-design` (opt) | Design system — tokens, component catalog, showcase page. **Decides** it |
+| 1c | `1c-design-intake` (opt) | The same artifacts **extracted** from an external designer's delivery, gated by a conformance pass. Alternative to `frontend-design` — run one, not both |
+| 1d | `1d-ui-mockup` (UI req.) | HTML sitemap + per-screen mockups + implementation handoff. Authors no mockups in design-derived mode |
+| 1e | `1e-concept-sync` (opt) | Reconcile iterated mockups back into the concept |
+| 2 | `2-requirements-engineer` | PRDs: user stories, acceptance criteria, edge cases |
+| 2b | `2b-handoff-package` (opt) | Standalone zippable package for external experts |
+| 2c | `2c-review-reconcile` (opt) | Resolve PRD review gaps point by point |
+| 2d | `2d-release-scope` (opt) | Cross-PROJ release slice from a phased inventory: feature→US index, exclusions, gaps, forward-compat seams |
+| 2e | `2e-release-package` (opt) | Freeze a release slice into a standalone, verified, commit-pinned package; gaps route back to the source PROJ |
+| 3 | `3-architecture` | PROJ-level tech design across all PRDs |
+| 4 | `4-writing-plans` | Wave-based implementation plans |
+| 4a | `4a-checkpoint` | CP1/CP2/bootstrap as structured reconcile loops with a decision log; CP1 seals `state.json` to `CP1:approved` |
+| 4b | `4b-setup` | P0 once per PROJ: branch, preflight, framework scripts into the repo, context bundles |
+| 5 | `5-executing` | Implement wave by wave with TDD, wave gates, debt markers |
+| 6 | `6-qa` | End-to-end QA; read-only finder in framework runs, findings into the ledger |
+| 7 | `7-documentation` | Human docs + curation of the long-lived `docs/` baseline behind form and truth gates |
+| 8 | `8-delivery` | Conflict probe, PR with rendered body, CI fix loop, CP2 comment reconcile |
 
 A bare number is a main-line step; a letter suffix is a variant at the same
 stage — `1b`–`1e` are a sequence inside the UI branch, `2b`/`2c` optional
@@ -128,59 +129,85 @@ candidates, producing a `chain-input.md` that can feed back into the chain.
 `sonar-cli` is a focused helper for configuring and running SonarScanner
 CLI and triaging quality-gate data.
 
-Claude-specific experimental or personal skills are intentionally excluded.
+Host-specific experimental or personal skills are intentionally excluded.
 
 ## Repository Layout
 
 ```text
-codex/skills/    Codex version of the chain
-claude/skills/   Claude version of the chain
-runner/          Host-neutral dual-lane phase runner, schemas, report templates, release-gate spikes
-docs/            Human documentation for this repository
-scripts/         Install and validation helpers
-CONCEPT.md       The agent workflow framework specification
+skills/               The chain — one canonical Agent Skills tree, the only editable source
+.claude-plugin/       Claude Code plugin + marketplace manifests (auto-discovers ./skills/)
+.codex-plugin/        Codex plugin manifest ("skills": "./skills/")
+gemini-extension.json Gemini CLI extension manifest
+install.sh            Zero-dependency installer: --target, symlink or copy, uninstall
+runner/               Host-neutral dual-lane phase runner, schemas, report templates, release-gate spikes
+docs/                 Human documentation for this repository
+scripts/              Validation gates
+CONCEPT.md            The agent workflow framework specification
 ```
 
 `AGENTS.md` is the only curated durable-context file. `CLAUDE.md` is
 pointer-only and tells Claude to read `AGENTS.md`.
 
-Framework helper scripts (`state.sh`, `ledger.mjs`, the compiler/injector,
-gates, adapters) are byte-identical across their skill copies — `validate.sh`
-enforces it; `wave-gate.sh` is the per-platform exception.
+There is exactly one copy of every skill and every framework helper.
+Cross-skill references use `../<skill>/…` relative to the skill directory;
+host differences live in a `## Host adaptation` block inside the canonical
+file, never in a second tree. See
+[docs/agent-portability.md](docs/agent-portability.md) for the Adapter Rule.
 
 ## Install
 
-Install the Codex skills:
+The chain is a standard [Agent Skills](https://agentskills.io/specification)
+package. Pick **one** channel — installing through two leaves you with every
+skill twice.
 
 ```bash
-./scripts/install-codex.sh
+# Any agent (Claude Code, Codex, Cursor, Gemini CLI, Copilot, Amp, OpenCode, Zed …)
+npx skills add VerttAG/agentic-development-skill-chain
+
+# Claude Code — native plugin (two separate prompts)
+/plugin marketplace add VerttAG/agentic-development-skill-chain
+/plugin install skill-chain@skill-chain
+
+# Codex — native plugin
+codex plugin marketplace add VerttAG/agentic-development-skill-chain
+codex plugin add skill-chain@skill-chain
+
+# Gemini CLI
+gemini extensions install https://github.com/VerttAG/agentic-development-skill-chain
+
+# No Node, no registry
+git clone https://github.com/VerttAG/agentic-development-skill-chain
+cd agentic-development-skill-chain && ./install.sh
 ```
 
-Install the Claude skills:
+One canonical copy lands in `~/.agents/skills/` — the path Codex, Cursor,
+Gemini CLI, Copilot, Amp, OpenCode and Zed read natively. Claude Code gets a
+per-skill symlink into it, so there is still one copy to update.
 
-```bash
-./scripts/install-claude.sh
-```
+> Codex reads `~/.agents/skills/`, **not** `~/.codex/skills/`.
 
-Both scripts copy the bundled core chain and optional skills into the
-default local skill directories. Framework runs additionally need the
-Ponytail plugin on both providers — install commands and the mode/scoping
-setup are in [docs/installation.md](docs/installation.md).
+Framework runs additionally need the Ponytail plugin on both providers.
+Per-host detail, upgrade notes from 1.x, and the `npx skills` telemetry
+disclosure are in [docs/installation.md](docs/installation.md).
 
 ## Validate
 
 ```bash
-./scripts/validate.sh          # structure, frontmatter, byte-identical helpers, schemas, syntax
-runner/spike-dual-lane.sh      # Stage 1 release gate: live dual lanes, ledger guarantees, stop policy
-runner/spike-stage2.sh         # Stage 2 release gate: bundles, injector, caps, cross-review, P7 gates
+./scripts/check-skills.sh        # Agent Skills spec: name==dir, charset, description budget,
+                                 # single-copy helpers, no hardcoded host paths, links resolve
+node scripts/check-versions.mjs  # every host manifest agrees, and matches the git tag on a tag push
+./scripts/validate.sh            # expected skill set, rule files, stale conventions, schemas, syntax
+runner/spike-dual-lane.sh        # Stage 1 release gate: live dual lanes, ledger guarantees, stop policy
+runner/spike-stage2.sh           # Stage 2 release gate: bundles, injector, caps, cross-review, P7 gates
 ```
 
-The validation script checks that the expected skill folders exist in both
-trees, every skill has `SKILL.md` frontmatter, the byte-identical helper
-set stays in sync, the schemas parse, and every script passes a syntax
-check. The spikes are the release gates for the framework: they exercise
-live provider lanes, the ledger's concurrency and reopen guarantees, and
-every runner gate against stubbed failure fixtures.
+The three gates run before the spikes in CI, so drift surfaces as a one-line
+error rather than a stack trace. `check-skills.sh` is what stops the old
+two-tree duplication from coming back: it fails if a second skill tree appears,
+if any helper script exists in more than one place, or if a skill hardcodes a
+host skill home. The spikes are the release gates for the framework: they
+exercise live provider lanes, the ledger's concurrency and reopen guarantees,
+and every runner gate against stubbed failure fixtures.
 
 ## Inspirations
 

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://www.schemastore.org/codex-plugin-manifest.json",
+  "name": "skill-chain",
+  "version": "2.0.0",
+  "description": "An opinionated 0-to-8 skill chain for agentic software development: product vision, brainstorming, requirements, architecture, wave plans, execution, QA, documentation and PR delivery.",
+  "author": {
+    "name": "Aleksandar Bozic",
+    "email": "aleksandar.bozic@vertt.ch",
+    "url": "https://github.com/VerttAG"
+  },
+  "homepage": "https://github.com/VerttAG/agentic-development-skill-chain",
+  "repository": "https://github.com/VerttAG/agentic-development-skill-chain",
+  "license": "MIT",
+  "keywords": ["skills", "workflow", "planning", "requirements", "architecture", "tdd", "qa"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Agentic Development Skill Chain",
+    "shortDescription": "Idea to merged PR, one numbered step at a time",
+    "longDescription": "A 0-to-8 chain that turns a rough product idea into a buildable concept, explores UI shape when needed, writes requirements, creates architecture and wave-based implementation plans, executes with TDD and hard wave gates, runs QA, curates documentation, and delivers a PR. Two human checkpoints frame the autonomous middle: plan approval before execution and PR review after delivery.",
+    "developerName": "Aleksandar Bozic",
+    "category": "Developer Tools",
+    "capabilities": ["Interactive", "Read", "Write"],
+    "defaultPrompt": [
+      "Where am I in the skill chain, and what should I do next?",
+      "I have an idea for a feature I'd like to build.",
+      "The plans are approved — start the implementation waves."
+    ],
+    "websiteURL": "https://github.com/VerttAG/agentic-development-skill-chain"
+  }
+}

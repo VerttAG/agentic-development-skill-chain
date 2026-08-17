@@ -7,3 +7,6 @@ node_modules/
 tmp/
 dist/
 build/
+
+# Local agent state: personal settings and subagent worktrees
+.claude/

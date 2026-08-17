@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-GATE="${GATE:-${ROOT}/claude/skills/5_executing/scripts/wave-gate.sh}"
+GATE="${GATE:-${ROOT}/skills/5-executing/scripts/wave-gate.sh}"
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 
@@ -62,7 +62,8 @@ expect_fail run_gate
 case_dir auth-pacing
 write_config '{"build_cmd":"true","timeouts":{"ac_seconds":5,"build_seconds":5,"coderabbit_seconds":5,"browser_seconds":5},"waves":{"1":{"advisory_severities":[],"auth_pacing_seconds":1,"ac_commands":[{"command":"date +%s >> auth-times; printf '\''Running 1 test\\n1 passed\\n'\''","auth_consuming":true},{"command":"date +%s >> auth-times; printf '\''Running 1 test\\n1 passed\\n'\''","auth_consuming":true}],"frontend_routes":[]}}}'
 run_gate
-mapfile -t auth_times < "$CASE/auth-times"
+auth_times=()
+while IFS= read -r _t; do auth_times+=("$_t"); done < "$CASE/auth-times"
 [[ $(( auth_times[1] - auth_times[0] )) -ge 1 ]] || fail "auth-consuming commands were not paced"
 
 case_dir stall

@@ -34,6 +34,17 @@
 # Exit: 0 phase(s) done · 1 stop condition (run parked) · 64 usage
 set -euo pipefail
 
+# `setsid` is util-linux and absent on macOS. It is used only to put each lane in
+# its own process group so the kill-tree path (`kill -- -$PID`) reaches the whole
+# tree. Bash job control achieves the same thing portably: under `set -m` a
+# background job becomes its own process-group leader and $! is that PGID.
+if command -v setsid >/dev/null 2>&1; then
+  detach() { setsid "$@"; }
+else
+  set -m
+  detach() { "$@"; }
+fi
+
 RUNNER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 PHASE_ARG="${1:-}"; PROJ="${2:-}"; THEME="${3:-}"
@@ -74,18 +85,18 @@ if [ "$WRITER_MODEL" = "$REVIEW_MODEL" ]; then
   exit 64
 fi
 
-# state.sh: prefer the repo copy (4b_setup installs it), fall back to the skill tree
+# state.sh: prefer the repo copy (4b-setup installs it), fall back to the skill tree
 if [ -x scripts/state.sh ]; then
   STATE_SH="scripts/state.sh"
-elif [ -x "$RUNNER_DIR/../claude/skills/4b_setup/scripts/state.sh" ]; then
-  STATE_SH="$RUNNER_DIR/../claude/skills/4b_setup/scripts/state.sh"
+elif [ -x "$RUNNER_DIR/../skills/4b-setup/scripts/state.sh" ]; then
+  STATE_SH="$RUNNER_DIR/../skills/4b-setup/scripts/state.sh"
 else
   echo "run-phase.sh: state.sh not found (scripts/state.sh or skill tree)" >&2; exit 1
 fi
 
 LEDGER=""
 [ -f scripts/ledger.mjs ] && LEDGER="scripts/ledger.mjs"
-[ -z "$LEDGER" ] && [ -f "$RUNNER_DIR/../claude/skills/6_qa/scripts/ledger.mjs" ] && LEDGER="$RUNNER_DIR/../claude/skills/6_qa/scripts/ledger.mjs"
+[ -z "$LEDGER" ] && [ -f "$RUNNER_DIR/../skills/6-qa/scripts/ledger.mjs" ] && LEDGER="$RUNNER_DIR/../skills/6-qa/scripts/ledger.mjs"
 
 step() { echo "→ [$(date -Iseconds)] $*"; }
 state_get() { "$STATE_SH" get "$PROJ" "$THEME" "$1"; }
@@ -98,11 +109,11 @@ phase_index() {
 
 phase_skill() { # skill loaded by the writer lane
   case "$1" in
-    P0) echo "setup (4b_setup)" ;;
-    P5) echo "executing (5_executing)" ;;
+    P0) echo "setup (4b-setup)" ;;
+    P5) echo "executing (5-executing)" ;;
     P6) echo "p6-controller" ;;
-    P7) echo "documentation (7_documentation)" ;;
-    P8) echo "delivery (8_delivery)" ;;
+    P7) echo "documentation (7-documentation)" ;;
+    P8) echo "delivery (8-delivery)" ;;
     *) return 1 ;;
   esac
 }
@@ -121,7 +132,7 @@ kill_group() { # kill a lane's whole process group, TERM then KILL
   kill -KILL -- "-$1" 2>/dev/null || true
 }
 
-# Any signal to the runner must not orphan the setsid lane trees (review fix #5).
+# Any signal to the runner must not orphan the lane process trees (review fix #5).
 ACTIVE_PIDS=()
 on_signal() {
   echo "run-phase.sh: interrupted — killing lane process groups" >&2
@@ -195,23 +206,23 @@ launch_lane() { # provider role promptfile outfile — sets LANE_PID/LANE_MODEL 
   case "${provider}:${role}" in
     claude:writer)
       LANE_MODEL="$WRITER_MODEL"
-      setsid claude -p "$(cat "$prompt")" --model "$WRITER_MODEL" \
+      detach claude -p "$(cat "$prompt")" --model "$WRITER_MODEL" \
         --dangerously-skip-permissions </dev/null >"$out" 2>&1 &
       ;;
     claude:peer)
       local tools="Read,Grep,Glob"
       [ "$PHASE" = "P6" ] && tools="Read,Grep,Glob,Bash"   # the QA finder must run tests/browser
       LANE_MODEL="$REVIEW_MODEL"    # pinned explicitly — never the writer's model (review fix #4)
-      setsid claude -p "$(cat "$prompt")" --model "$LANE_MODEL" \
+      detach claude -p "$(cat "$prompt")" --model "$LANE_MODEL" \
         --allowedTools "$tools" </dev/null >"$out" 2>&1 &
       ;;
     codex:writer)
       LANE_MODEL="codex-default"
-      setsid codex exec --sandbox workspace-write "$(cat "$prompt")" </dev/null >"$out" 2>&1 &
+      detach codex exec --sandbox workspace-write "$(cat "$prompt")" </dev/null >"$out" 2>&1 &
       ;;
     codex:peer)
       LANE_MODEL="codex-default"
-      setsid codex exec --sandbox read-only "$(cat "$prompt")" </dev/null >"$out" 2>&1 &
+      detach codex exec --sandbox read-only "$(cat "$prompt")" </dev/null >"$out" 2>&1 &
       ;;
     *) echo "run-phase.sh: unknown lane ${provider}:${role}" >&2; return 1 ;;
   esac
@@ -286,11 +297,11 @@ open_cross_review_blocking() {
       ] | length' "$BASE/findings.json" 2>/dev/null || echo 0
 }
 
-curation_caps_path() { # repo copy first (4b_setup installs it), then skill tree
+curation_caps_path() { # repo copy first (4b-setup installs it), then skill tree
   if [ -f scripts/curation-caps.sh ]; then
     echo "scripts/curation-caps.sh"
-  elif [ -f "$RUNNER_DIR/../claude/skills/7_documentation/scripts/curation-caps.sh" ]; then
-    echo "$RUNNER_DIR/../claude/skills/7_documentation/scripts/curation-caps.sh"
+  elif [ -f "$RUNNER_DIR/../skills/7-documentation/scripts/curation-caps.sh" ]; then
+    echo "$RUNNER_DIR/../skills/7-documentation/scripts/curation-caps.sh"
   fi
 }
 
@@ -379,7 +390,7 @@ run_p6() {
   local ts finder_out finder_prompt finder_pid finder_start tree_before tree_after
   ts="$(date +%Y%m%d-%H%M%S)"
   finder_out="$LANE_DIR/P6-${PEER}-finder-${ts}.out"
-  render_prompt peer "Load and execute the QA skill qa (6_qa) READ-ONLY for specs/PROJ-${PROJ}-${THEME}: find bugs, do not fix anything. Also write every finding as a ledger record (node scripts/ledger.mjs add ${PROJ} ${THEME})." finder_prompt
+  render_prompt peer "Load and execute the QA skill qa (6-qa) READ-ONLY for specs/PROJ-${PROJ}-${THEME}: find bugs, do not fix anything. Also write every finding as a ledger record (node scripts/ledger.mjs add ${PROJ} ${THEME})." finder_prompt
   tree_before="$(git status --porcelain 2>/dev/null | sha1sum)"
   step "P6 finder lane (sequential, before controller): $PEER — output $finder_out"
   launch_lane "$PEER" peer "$finder_prompt" "$finder_out"
