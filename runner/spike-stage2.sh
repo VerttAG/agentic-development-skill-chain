@@ -28,7 +28,7 @@ SKIP_LIVE=0
 
 SPIKE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SPIKE_DIR/.." && pwd)"
-SKILLS="$REPO_ROOT/claude/skills"
+SKILLS="$REPO_ROOT/skills"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 PASS=0; FAIL=0
@@ -60,17 +60,17 @@ printf '# Ground file\nAssumption: node 22.\n' > specs/PROJ-96-stage2/ground-fil
 mkdir -p specs/intake
 printf '# Bootstrap decisions\n\n- D-BOOTSTRAP-01 · Point: error convention · Decision: adopt\n' > specs/intake/decisions.md
 
-for s in 4b_setup/scripts/state.sh 4b_setup/scripts/compile-context-bundles.mjs \
-         4b_setup/scripts/context-injector.mjs 4b_setup/scripts/ponytail-check.sh \
-         6_qa/scripts/ledger.mjs 7_documentation/scripts/curation-caps.sh \
-         0b_intake/scripts/intake-seal-check.sh \
+for s in 4b-setup/scripts/state.sh 4b-setup/scripts/compile-context-bundles.mjs \
+         4b-setup/scripts/context-injector.mjs 4b-setup/scripts/ponytail-check.sh \
+         6-qa/scripts/ledger.mjs 7-documentation/scripts/curation-caps.sh \
+         0b-intake/scripts/intake-seal-check.sh \
          cross-review/scripts/cross-review.sh cross-review/scripts/review-with-claude.sh \
          cross-review/scripts/review-with-codex.sh; do
   cp "$SKILLS/$s" scripts/
 done
 mkdir -p templates
 cp "$SKILLS/cross-review/templates/cross-review-prompt.md.tmpl" templates/
-cp "$SKILLS"/4b_setup/manifests/roles/*.md templates/roles/
+cp "$SKILLS"/4b-setup/manifests/roles/*.md templates/roles/
 chmod +x scripts/*.sh
 git add -A; git commit -qm base
 BASE_SHA="$(git rev-parse HEAD)"

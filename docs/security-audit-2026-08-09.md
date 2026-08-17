@@ -41,13 +41,13 @@ but does not replace the required fixes.
 
 - [`runner/run-phase.sh`](../runner/run-phase.sh#L196-L200) launches the default
   Claude writer with `--dangerously-skip-permissions`.
-- [`project-settings-template.json`](../claude/skills/5_executing/references/project-settings-template.json#L13-L15)
+- [`project-settings-template.json`](../skills/5-executing/references/project-settings-template.json#L13-L15)
   sets `defaultMode` to `bypassPermissions`.
 - The same template permits broad operations including `Bash(bash -c*)`,
   `Bash(node *)`, `Bash(npx *)`, `Bash(gh api*)`, ordinary Git pushes,
   Supabase SQL and migrations, and Vercel deployment.
 - Its deny list starts at
-  [`project-settings-template.json:238`](../claude/skills/5_executing/references/project-settings-template.json#L238)
+  [`project-settings-template.json:238`](../skills/5-executing/references/project-settings-template.json#L238)
   and blocks selected command spellings rather than providing a host boundary.
 - Container isolation is proposed as a future improvement in
   [`CONCEPT.md`](../CONCEPT.md#L1343-L1351); the runner does not enforce it.
@@ -96,15 +96,15 @@ the official [permissions](https://code.claude.com/docs/en/permissions) and
 
 **Evidence**
 
-- [`rolesDir()`](../codex/skills/4b_setup/scripts/compile-context-bundles.mjs#L69-L73)
+- [`rolesDir()`](../skills/4b-setup/scripts/compile-context-bundles.mjs#L69-L73)
   permits a target repository to provide `templates/roles/*.md` manifests.
-- [`loadManifests()`](../codex/skills/4b_setup/scripts/compile-context-bundles.mjs#L124-L136)
+- [`loadManifests()`](../skills/4b-setup/scripts/compile-context-bundles.mjs#L124-L136)
   validates required fields and injection source IDs but does not validate
   `fm.name`.
 - The name is interpolated into output paths at
-  [`compile-context-bundles.mjs:245`](../codex/skills/4b_setup/scripts/compile-context-bundles.mjs#L245-L257)
+  [`compile-context-bundles.mjs:245`](../skills/4b-setup/scripts/compile-context-bundles.mjs#L245-L257)
   and Claude agent paths at
-  [`compile-context-bundles.mjs:282`](../codex/skills/4b_setup/scripts/compile-context-bundles.mjs#L282).
+  [`compile-context-bundles.mjs:282`](../skills/4b-setup/scripts/compile-context-bundles.mjs#L282).
 
 A disposable fixture with the manifest name
 `x/../../../../escaped-audit` caused compilation to write outside both the
@@ -132,7 +132,7 @@ the unattended writer lane because that lane is not host-isolated.
 
 **Evidence**
 
-[`state.sh`](../codex/skills/4b_setup/scripts/state.sh#L138-L146) accepts a
+[`state.sh`](../skills/4b-setup/scripts/state.sh#L138-L146) accepts a
 caller-provided `PATH_EXPR`, blocks only the exact strings `.phase` and
 `.status`, and then interpolates the remaining expression into a jq program.
 
@@ -164,9 +164,9 @@ than direct host command execution.
 - The value is later evaluated by Bash arithmetic at
   [`run-phase.sh:227`](../runner/run-phase.sh#L227).
 - The cross-review adapters repeat the pattern at
-  [`review-with-claude.sh`](../claude/skills/cross-review/scripts/review-with-claude.sh#L14-L47)
+  [`review-with-claude.sh`](../skills/cross-review/scripts/review-with-claude.sh#L14-L47)
   and
-  [`review-with-codex.sh`](../claude/skills/cross-review/scripts/review-with-codex.sh#L14-L48).
+  [`review-with-codex.sh`](../skills/cross-review/scripts/review-with-codex.sh#L14-L48).
 
 A harmless marker probe confirmed that an array-subscript expression containing
 command substitution executes when Bash recursively evaluates the timeout
@@ -190,10 +190,10 @@ validation to `TIMEOUT`, `PEER_GRACE`, review timeouts, and wave numbers.
 These are important trust assumptions but were not counted as separate
 vulnerabilities:
 
-- [`wave-gate.sh`](../codex/skills/5_executing/scripts/wave-gate.sh#L247)
+- [`wave-gate.sh`](../skills/5-executing/scripts/wave-gate.sh#L247)
   intentionally executes repository-configured acceptance, build, and Sonar
   commands through `bash -c`. Only trusted configuration should reach this gate.
-- [`preflight.sh`](../codex/skills/4b_setup/scripts/preflight.sh#L141-L146)
+- [`preflight.sh`](../skills/4b-setup/scripts/preflight.sh#L141-L146)
   invokes unpinned `npx supabase --version` when a local Supabase CLI is absent,
   which can download and execute the current registry package during preflight.
 - The workflow sends repository material to configured external model, review,

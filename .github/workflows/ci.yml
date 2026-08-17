@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  push:
+    branches: [main, develop]
+    tags: ['v*']
+  pull_request:
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Cheap, dependency-free consistency checks run BEFORE anything heavy, so
+      # drift surfaces as a one-line error instead of a stack trace.
+      - name: Agent Skills spec + single-source gate
+        run: ./scripts/check-skills.sh
+
+      - name: Manifest version agreement
+        run: node scripts/check-versions.mjs
+
+      - name: Repository invariants
+        run: ./scripts/validate.sh
+
+      # The installer must at least resolve its plan on a clean checkout.
+      - name: Installer smoke test
+        run: |
+          ./install.sh --list
+          test "$(./install.sh --list | awk '/^skills:/{print $2}')" = "23"
+
+      # Round-trip into a scratch project: install, verify the canonical copy and
+      # the Claude symlinks resolve, then uninstall and confirm nothing is left.
+      - name: Install round-trip
+        run: |
+          mkdir -p /tmp/scratch
+          ./install.sh --target claude --dest /tmp/scratch
+          test -f /tmp/scratch/.agents/skills/0-chain-guide/SKILL.md
+          test -f /tmp/scratch/.claude/skills/0-chain-guide/SKILL.md   # through the symlink
+          test -L /tmp/scratch/.claude/skills/0-chain-guide
+          test "$(find /tmp/scratch -name '.DS_Store' | wc -l)" -eq 0
+          ./install.sh --uninstall --target claude --dest /tmp/scratch
+          test "$(ls /tmp/scratch/.agents/skills | wc -l)" -eq 0

@@ -1,0 +1,202 @@
+---
+name: 1e-concept-sync
+description: "Reconcile mockup iteration changes back into the concept before requirements. Use after 1d-ui-mockup when stakeholders prompted changes into the HTML, or when a design-derived PROJ's accepted design version moved after approval."
+license: MIT
+---
+
+# Concept Sync — Reconcile Mockup Iterations Into The Concept
+
+During mockup review, stakeholders iterate by prompting changes directly into the HTML mockups until everyone agrees. Those agreed changes drift away from the original concept. This skill closes that loop: it reads the tracked changes and updates the concept so the concept again reflects what was actually decided — before requirements are written.
+
+This is the bridge between visual iteration and `requirements-engineer`. It is the primary reconciliation step in the **Product Discovery track** (brainstorm → visual-companion → ui-mockup ⟳ → concept-sync → requirements-engineer), and it is equally valid in the full 0-to-8 chain whenever mockups were iterated after the concept was written.
+
+## When To Use
+
+- Mockups in `1d_mockups/` were changed after the concept was approved.
+- `1d_mockups/iteration-log.md` exists with logged change entries.
+- The team has reached agreement on the mockups and wants the concept to match.
+- Requirements should be written next, and they must consume an up-to-date concept.
+- **Design-derived PROJ:** the accepted design version moved after the concept
+  was approved. The iteration source is a designer's file rather than local
+  HTML, and the reconciliation is identical.
+
+## When To Skip
+
+- The concept and mockups never diverged (no iteration happened).
+- The change log is empty — **except in design-derived mode**, where an empty
+  log is a defect rather than a signal. See below.
+- You are still mid-iteration — keep iterating in `ui-mockup` first.
+
+## Design-Derived Mode
+
+Detect it: `1c_design/design-source.md` exists. `1c-design-intake` wrote it, so
+the visual authority is an external designer's file and `1d-ui-mockup` authored
+no screen HTML by design.
+
+What changes is the *source* of the change set, not the reconciliation:
+
+| | Normal | Design-derived |
+|---|---|---|
+| Iteration source | HTML prompted in `1d_mockups/` | Accepted design version bumps, `Source: design` in the log |
+| Corroborating artifact | The mockup files | `1c_design/design-source.md` node index + version stamps |
+| Empty log means | Nothing was iterated — skip | **Nothing was recorded.** Do not skip |
+
+That last row is the whole reason this section exists. Elsewhere in the chain an
+empty log is evidence of a quiet period; here it is indistinguishable from a
+design that moved three versions with nobody writing it down, because the drift
+happened in a file this skill cannot read. Treat an empty log next to a
+`design-source.md` whose accepted version is *newer than* the concept's last
+sync as an unrecorded-drift finding: say so, and reconstruct before syncing.
+
+## Decomposed PROJ Handling
+
+Work one PROJ at a time. If the concept contains `Decomposition Context`:
+
+- Sync only the current PROJ's concept against its own iteration log.
+- Do not pull sibling PROJ scope into this concept.
+- If an iteration revealed new scope that belongs to a sibling PROJ, record it under `## Future Scope` or as a cross-PROJ dependency, not as new behavior in this concept.
+
+## Input
+
+Read these inputs:
+
+1. Concept: `specs/PROJ-<X>-<theme>/1_brainstorm/PROJ-<X>-concept.md`
+2. Mockup iteration log: `specs/PROJ-<X>-<theme>/1d_mockups/iteration-log.md`
+3. Current mockups: `specs/PROJ-<X>-<theme>/1d_mockups/*.html` — in design-derived mode this is the sitemap alone; there are no screen files to read
+4. UI implementation handoff: `specs/PROJ-<X>-<theme>/1d_mockups/implementation-handoff.md`, including its `## Design Source` block when present
+5. Optional Visual Companion decision: `specs/PROJ-<X>-<theme>/1b_visual-companion/layout-decision.md`
+6. Design-derived only: `specs/PROJ-<X>-<theme>/1c_design/design-source.md` — the accepted version stamp and node index, which stand in for the mockup files
+
+If `iteration-log.md` does not exist or is empty but the design clearly moved, reconstruct the change set and ask the user to confirm what was decided, then write the missing log so the trail is not lost. **Reconstruct from whichever source actually holds the change:**
+
+- **Normal mode:** compare the current mockups against the concept.
+- **Design-derived mode:** compare `design-source.md`'s accepted version against the version the concept last synced against, and walk the designer's own version notes. Never attempt this from the mockup files — their absence is the mode working correctly, not evidence that nothing changed. If the designer kept no version notes, say that plainly and reconstruct with the user from the node index instead of inferring.
+
+## Workflow
+
+### 1. Build The Change Set
+
+Read `iteration-log.md` and the current mockups. Each entry carries a `Source: mockup | design` field; in design-derived mode the entries are version bumps and `design-source.md` replaces the mockup files as the corroborating artifact. The classification is the same either way — **what moved matters, where it moved does not:**
+
+- **Scope change** — a flow, screen, capability, or user goal was added, removed, or reshaped.
+- **Behavior change** — a rule, state, or interaction outcome changed in a way that affects requirements.
+- **Presentation-only** — pure layout/visual change with no effect on the concept (note it, do not propagate it).
+
+Only scope and behavior changes flow into the concept. Presentation-only changes stay in the mockups and the UI handoff.
+
+### 2. Reconcile Into The Concept
+
+Update `specs/PROJ-<X>-<theme>/1_brainstorm/PROJ-<X>-concept.md` so it again describes the agreed product:
+
+- Update the relevant concept sections (goals, scope, flows, constraints, assumptions, risks).
+- Where the iteration **replaced** an earlier concept decision, update the text and record the old decision under `## Superseded Decisions` with a one-line reason.
+- Where the iteration **added** scope, add it to the concept's scope/flows.
+- Where the iteration **dropped** scope, move it to `## Future Scope` or mark it out of scope — do not silently delete it.
+- Keep the concept at concept altitude: no acceptance criteria, no API/schema design, no component file paths. Behavior and scope only.
+
+Add or update a sync trailer at the end of the concept:
+
+```markdown
+## Concept Sync Log
+- <date>: Synced from mockup iteration <N>. <one-line summary of what changed in the concept>.
+```
+
+In design-derived mode name the design version instead of the iteration number, because that is the thing a later reader has to compare against:
+
+```markdown
+## Concept Sync Log
+- <date>: Synced from design version <stamp> (`1c_design/design-source.md`). <one-line summary>.
+```
+
+Always write the stamp. `chain-guide` detects unrecorded design drift by comparing the accepted version in `design-source.md` against the one named here; a sync entry with no version leaves that check with nothing to compare and it silently passes.
+
+### 3. Mark Abandoned Directions
+
+If the iteration abandoned an approach that the concept or Visual Companion previously committed to, record it explicitly so it is not re-proposed later:
+
+```markdown
+## Superseded Decisions
+- Was: <original concept decision>
+- Now: <agreed decision after iteration>
+- Reason: <why it changed during mockup review>
+```
+
+### 4. Review With The User
+
+Show the user a concise diff-style summary:
+
+- What changed in the concept and why.
+- Which mockup changes were treated as presentation-only and intentionally not propagated.
+- Which decisions were superseded.
+- Anything ambiguous that needs a decision before requirements.
+
+Ask one question at a time for anything unresolved. Only continue after the user confirms the concept now matches the agreed mockups.
+
+### 5. Signal Handoff Readiness
+
+Once the concept matches the mockups and the user approves, write a short readiness marker so downstream skills know the concept is reconciled:
+
+```markdown
+## Handoff Readiness
+- Concept reconciled with mockups: yes
+- Open questions for requirements: <none | list>
+- Delivery track: discovery (Linear handoff) | full chain (in-repo build)
+```
+
+Place this section in the concept. Set `Delivery track` based on how this PROJ will be delivered:
+
+- **discovery (Linear handoff):** No in-repo implementation here — `requirements-engineer` produces a developer handoff for Linear and the chain stops at Step 2.
+- **full chain (in-repo build):** Steps 3–7 will follow in this repo.
+
+If unsure, ask the user.
+
+### 6. Handoff
+
+After approval, recommend `requirements-engineer` (2):
+
+- For the **discovery track**, tell `requirements-engineer` to run in **Linear handoff mode**: PRDs with no in-repo implementation notes.
+- For the **full chain**, hand off normally.
+
+The reconciled concept, the current mockups, and the implementation handoff are the inputs to requirements. In design-derived mode the mockups are replaced by the sitemap plus `design-source.md`; say so in the handoff, because requirements has its own rule about missing mockups and must not read their absence as an unfinished UI branch.
+
+## Completion Checklist
+
+- [ ] Iteration log read (or reconstructed and saved if it was missing or empty)
+- [ ] Design-derived only: reconstruction sourced from the design version history, never from absent mockups; an empty log beside a newer accepted version reported as unrecorded drift
+- [ ] Each change classified as scope, behavior, or presentation-only
+- [ ] Scope and behavior changes reflected in the concept
+- [ ] Dropped scope moved to Future Scope, not deleted
+- [ ] Superseded decisions recorded with reasons
+- [ ] `Concept Sync Log` trailer added/updated
+- [ ] `Handoff Readiness` section added with delivery track set
+- [ ] User reviewed the change summary and approved
+- [ ] Correct `requirements-engineer` mode recommended
+
+## Git Commit Format
+
+```text
+docs(PROJ-<X>): Sync concept with mockup iterations for <theme>
+```
+
+Git is optional on the discovery track. If the workspace is not a git repository, skip the commit; the reconciled concept file is the durable artifact.
+
+## Legacy Folder Layout
+
+PROJ folders created before the layout rename use different subfolder
+names. Mapping, old → current:
+
+`2_visual-companion/` → `1b_visual-companion/` · `4_design/` → `1c_design/` ·
+`5_mockups/` → `1d_mockups/` · `3_PRDs/` → `2_PRDs/` ·
+`8_handoff/` → `2b_handoff/` · `6_plan/` → `3-4_plan/` ·
+`7_progress/` → `5_progress/`
+
+If an expected folder is missing but its legacy twin exists, **read from the
+legacy one and keep writing where the existing files already are**. Never
+create a second folder next to it — a split PROJ is worse than an old name.
+Say it once, then continue either way:
+
+> "This PROJ uses the old folder layout (`<old>`). Rename the folders to the
+> current names, or continue with the existing layout?"
+
+Renaming is a `git mv` per folder plus a search for the old paths in the
+PROJ's own documents. It is never a precondition for this skill.
