@@ -31,7 +31,13 @@ jobs:
       - name: Installer smoke test
         run: |
           ./install.sh --list
-          test "$(./install.sh --list | awk '/^skills:/{print $2}')" = "23"
+          # Derived, never hardcoded: the installer must report exactly the
+          # number of skill directories that exist. A literal count here goes
+          # stale the moment a skill is added or removed.
+          expected=$(find skills -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
+          actual=$(./install.sh --list | awk '/^skills:/{print $2}')
+          echo "installer reports $actual, tree has $expected"
+          test "$actual" = "$expected"
 
       # Round-trip into a scratch project: install, verify the canonical copy and
       # the Claude symlinks resolve, then uninstall and confirm nothing is left.
