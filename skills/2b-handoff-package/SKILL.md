@@ -36,7 +36,7 @@ This is the terminal step of the product discovery track. It does not invent pro
 Read these inputs (discovery-track locations):
 
 1. Reconciled concept: `specs/PROJ-<X>-<theme>/1_brainstorm/PROJ-<X>-concept.md` (with `Concept Sync Log` / `Handoff Readiness`)
-2. PRDs: `specs/PROJ-<X>-<theme>/2_PRDs/PROJ-<X>-PRD-*.md`
+2. PRDs: `specs/PROJ-<X>-<theme>/2_PRDs/PRD-*.md` (also accept legacy `PROJ-<X>-PRD-*.md`)
 4. Review changelog (if present): `specs/PROJ-<X>-<theme>/2_PRDs/review-changelog.md`
 5. Review decision records (if present): `specs/PROJ-<X>-<theme>/2_PRDs/*-review-decisions.md`
 6. Mockups + sitemap + UI handoff: `specs/PROJ-<X>-<theme>/1d_mockups/*.html`, `sitemap.html`, `implementation-handoff.md`

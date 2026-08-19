@@ -12,7 +12,7 @@
       "name": "skill-chain",
       "source": "./",
       "description": "The 0-to-8 chain: product vision, brainstorming, requirements, architecture, wave plans, execution, QA, documentation, PR delivery.",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "author": { "name": "Aleksandar Bozic" },
       "homepage": "https://github.com/VerttAG/agentic-development-skill-chain",
       "license": "MIT",

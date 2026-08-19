@@ -208,7 +208,7 @@ for P in $IN_SLICE; do
     esac
     cp "$REPO_ROOT/$F" "$PKG/projects/$PNAME/PRDs/$B"
     record "projects/$PNAME/PRDs/$B" "$F" "PRD"
-    U="$(grep -cE '^#{2,4} .*US-?[0-9]+' "$REPO_ROOT/$F" || true)"
+    U="$(grep -cE '^### UC-[a-z0-9-]+-[0-9]{2} — As an? |^#{2,4} .*US-?[0-9]+' "$REPO_ROOT/$F" || true)"
     printf '%s\t%s\n' "1" "${U:-0}" >> "$TMP/counts"
   done
 

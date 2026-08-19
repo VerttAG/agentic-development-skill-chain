@@ -22,7 +22,7 @@
 #   A3  at least one PRD (2_PRDs/ current or 3_PRDs/ legacy)
 #   A4  PRD manifest exists
 #   A5  no unmarked superseded PRD directory inside the PRD folder
-#   A6  every PRD carries at least one user-story heading
+#   A6  every PRD carries at least one v2 UC or legacy user-story heading
 #   A7  handoff freshness — the newest handoff RUN was produced after the latest PRD commit
 #       (measured from the run directory's birth, so editing an old run cannot fake freshness)
 #
@@ -185,14 +185,11 @@ for P in $PROJS; do
     fi
   done
 
-  # A6 · every PRD carries at least one user story. Two ID conventions are live in
-  # real PROJ sets: some write "US-1", others "P1-US1" with no hyphen before
-  # the number. Accept both — requiring one would report a fully specified PRD set
-  # as empty.
+  # A6 · every PRD carries at least one v2 UC or legacy user story.
   while IFS= read -r F; do
     [ -z "$F" ] && continue
-    if ! grep -qE '^#{2,4} .*US-?[0-9]+' "$REPO_ROOT/$F"; then
-      add A6 "$P" "prd-no-user-story" warn "$F" "no US-<n> or US<n> heading found"
+    if ! grep -qE '^### UC-[a-z0-9-]+-[0-9]{2} — As an? |^#{2,4} .*US-?[0-9]+' "$REPO_ROOT/$F"; then
+      add A6 "$P" "prd-no-user-story" warn "$F" "no UC or legacy US heading found"
     fi
   done < "$FIND_FILE.prds"
 

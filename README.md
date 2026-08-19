@@ -34,7 +34,8 @@ scaffold stood up, agent files written); an existing codebase goes through
 | 1c | `1c-design-intake` (opt) | The same artifacts **extracted** from an external designer's delivery, gated by a conformance pass. Alternative to `frontend-design` — run one, not both |
 | 1d | `1d-ui-mockup` (UI req.) | HTML sitemap + per-screen mockups + implementation handoff. Authors no mockups in design-derived mode |
 | 1e | `1e-concept-sync` (opt) | Reconcile iterated mockups back into the concept |
-| 2 | `2-requirements-engineer` | PRDs: user stories, acceptance criteria, edge cases |
+| 2 | `2-requirements-engineer` | New PRDs in the canonical six-section UC/AC format |
+| 2a | `2a-legacy-prd-migration` (alt) | Full-fidelity migration of existing PRDs into the same format |
 | 2b | `2b-handoff-package` (opt) | Standalone zippable package for external experts |
 | 2c | `2c-review-reconcile` (opt) | Resolve PRD review gaps point by point |
 | 2d | `2d-release-scope` (opt) | Cross-PROJ release slice from a phased inventory: feature→US index, exclusions, gaps, forward-compat seams |
@@ -49,7 +50,8 @@ scaffold stood up, agent files written); an existing codebase goes through
 | 8 | `8-delivery` | Conflict probe, PR with rendered body, CI fix loop, CP2 comment reconcile |
 
 A bare number is a main-line step; a letter suffix is a variant at the same
-stage — `1b`–`1e` are a sequence inside the UI branch, `2b`/`2c` optional
+stage — `1b`–`1e` are a sequence inside the UI branch, `2a` is the
+existing-PRD alternative to authoring Step 2, `2b`/`2c` optional
 forks, `0a`/`0b`/`0c` alternative entry paths, and `4a`/`4b` mandatory
 despite the letter. Skills with no number are not steps (see below). Inside
 `specs/PROJ-<X>-<theme>/`, each subfolder carries the number of the skill

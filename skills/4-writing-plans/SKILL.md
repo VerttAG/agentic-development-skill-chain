@@ -1,6 +1,6 @@
 ---
 name: 4-writing-plans
-description: "Turn approved architecture and PRDs into wave-based implementation plans, one file per wave, grouping user stories into parallel execution waves. Use before any code is written."
+description: "Turn approved architecture and PRDs into wave-based implementation plans, one file per wave, grouping use cases or legacy user stories into parallel execution waves. Use before code is written."
 license: MIT
 ---
 
@@ -36,7 +36,10 @@ Plans are written one PROJ at a time. If the architecture or concept references 
 - Read architecture file
 - Read every PRD in `2_PRDs/`
 - If UI work exists, read `1d_mockups/implementation-handoff.md` and extract the implementation-facing UI constraints.
-- Extract **all** user stories and acceptance criteria verbatim, prefixing with `PROJ-<X>-PRD-<Y>-US-<Z>` for uniqueness
+- Extract **all** v2 use cases (`UC-*`) and acceptance criteria verbatim. For
+  the existing plan/execution contract, map each UC by source order to the
+  compatibility work-unit ID `PROJ-<X>-PRD-<Y>-US-<Z>` and record the source
+  UC ID beside it. Legacy `US-*` PRDs keep their existing mapping.
 - Check existing codebase for relevant files, patterns, and conventions
 - **Check for `agent.md`** in the feature's source folder (e.g., `src/features/[feature]/agent.md`). If it exists, read it — incorporate known gotchas into the relevant tasks as warnings.
 - **Component Registry — mandatory for UI waves:** The canonical registry is `docs/components.md`, and it is **generated from the code**, not written by hand. If the PROJ has any UI work (any wave with `frontend_routes` or frontend-implementer tasks), refresh it before drafting task descriptions:
@@ -49,7 +52,10 @@ Plans are written one PROJ at a time. If the architecture or concept references 
 
 ### 2. Build the PROJ-wide dependency graph
 
-User stories from **all PRDs** go into one dependency graph. Cross-PRD dependencies are allowed (e.g. `PROJ-1-PRD-2-US-1` depends on `PROJ-1-PRD-1-US-1`).
+Requirement units from **all PRDs** go into one dependency graph. For v2
+PRDs, resolve each `Depends on` AC ID to the UC that owns that AC, then to its
+compatibility work-unit ID. Legacy cross-PRD dependencies remain supported
+(e.g. `PROJ-1-PRD-2-US-1` depends on `PROJ-1-PRD-1-US-1`).
 
 Determine **waves** — groups of user stories that can run in parallel because none of them depend on each other and all their prerequisites are complete.
 
@@ -84,7 +90,7 @@ Save each wave to `specs/PROJ-<X>-<theme>/3-4_plan/PROJ-<X>-wave-<N>-plan.md`.
 
 **Goal:** [One sentence describing what this wave delivers]
 **Architecture Reference:** `3-4_plan/PROJ-<X>-architecture.md`
-**PRDs involved:** PROJ-<X>-PRD-1, PROJ-<X>-PRD-2, …
+**PRDs involved:** PRD-1-<slug>, PRD-2-<slug>, … (exact declared IDs)
 
 ---
 
@@ -120,6 +126,7 @@ When in doubt: **sonnet**. Only escalate to opus with a visible reason (name the
 ---
 
 ## PROJ-<X>-PRD-1-US-1: [Text verbatim from PRD]
+**Source use case:** UC-<prd-slug>-01 (omit only for a legacy US source)
 **Scope:** backend → backend-implementer
 
 **Acceptance Criteria:**

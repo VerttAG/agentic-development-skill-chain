@@ -38,6 +38,6 @@ flowchart LR
 
 ### Notes
 
-- **PRDs:** [PRD-1](../specs/PROJ-<X>-<theme>/2_PRDs/PROJ-<X>-PRD-1-<desc>.md)
+- **PRDs:** [PRD-1](../specs/PROJ-<X>-<theme>/2_PRDs/PRD-1-<desc>.md)
 - **QA:** <pass/bugs/residual-risk summary from QA Results>
 - **Known limits:** <only if source-backed>

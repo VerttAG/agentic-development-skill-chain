@@ -64,18 +64,22 @@ if [[ "${#MISSING[@]}" -ne 0 ]]; then
 fi
 
 # PRD coverage: every PRD under 2_PRDs/ must be referenced by at least one wave plan.
-# Catches cases where Skill 4 forgot to include US from a late-added PRD.
+# Catches cases where Skill 4 forgot to include a UC or legacy US from a late-added PRD.
 PRD_DIR="${NEXT_DIR}/2_PRDs"
 ORPHANED_PRDS=()
 if [[ -d "$PRD_DIR" ]]; then
   shopt -s nullglob
-  prd_files=("${PRD_DIR}"/PROJ-${NEXT}-PRD-*.md)
+  prd_files=("${PRD_DIR}"/PRD-*.md "${PRD_DIR}"/PROJ-${NEXT}-PRD-*.md)
   shopt -u nullglob
   for prd_file in "${prd_files[@]}"; do
-    # Strip optional suffix: PROJ-2-PRD-1-collector-framework → PROJ-2-PRD-1
+    # New PRDs use the full PRD ID. Legacy plans use the short
+    # PROJ-X-PRD-Y prefix, so retain that compatibility path.
     full_name=$(basename "$prd_file" .md)
-    prd_stub=$(echo "$full_name" | grep -oE "^PROJ-${NEXT}-PRD-[0-9]+")
-    [[ -z "$prd_stub" ]] && prd_stub="$full_name"
+    if [[ "$full_name" =~ ^(PROJ-${NEXT}-PRD-[0-9]+) ]]; then
+      prd_stub="${BASH_REMATCH[1]}"
+    else
+      prd_stub="$full_name"
+    fi
     # Search all wave plans for the PRD stub followed by a non-digit (word boundary).
     # Prevents PROJ-2-PRD-1 from matching PROJ-2-PRD-10.
     if ! grep -Elq "${prd_stub}([^0-9]|$)" "${PLAN_DIR}"/PROJ-${NEXT}-wave-*-plan.md 2>/dev/null; then
@@ -94,7 +98,7 @@ fi
 
 # Count wave plans + PRDs for a helpful hint
 WAVE_COUNT=$(ls -1 "${PLAN_DIR}"/PROJ-${NEXT}-wave-*-plan.md 2>/dev/null | wc -l)
-PRD_COUNT=$(ls -1 "${PRD_DIR}"/PROJ-${NEXT}-PRD-*.md 2>/dev/null | wc -l)
+PRD_COUNT=$(find "${PRD_DIR}" -maxdepth 1 -type f \( -name 'PRD-*.md' -o -name "PROJ-${NEXT}-PRD-*.md" \) 2>/dev/null | wc -l)
 
 echo "→ NEXT ACTION: Start Skill 5 NOW for PROJ-${NEXT}."
 echo "  Folder: ${NEXT_DIR}"

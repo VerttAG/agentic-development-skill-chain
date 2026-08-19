@@ -12,6 +12,7 @@ flowchart LR
   S0 --> S1
   S1 --> S1B[1b visual-companion]
   S1 --> S2[2 requirements-engineer]
+  S1 --> S2A[2a legacy-prd-migration · existing PRDs]
   S1B --> S1C[1c frontend-design]
   S1B --> S1CI[1c design-intake · external designer]
   S1C --> S1D[1d ui-mockup]
@@ -22,6 +23,7 @@ flowchart LR
   S1E --> S2
   S2 -.discovery track.-> S2B[2b handoff-package]
   S2 --> S3[3 architecture]
+  S2A --> S3
   S3 --> S4[4 writing-plans]
   S4 --> S4A[4a checkpoint CP1]
   S4A --> S4B[4b setup P0]
@@ -79,7 +81,8 @@ After decomposition:
 | 1c | design-intake | Extract the same artifacts from an external designer's delivery instead, gated by a conformance pass against the brief's design-system contract. Alternative to `frontend-design` — run one, not both |
 | 1d | ui-mockup | Create lightweight mockups and implementation handoff; track stakeholder iterations |
 | 1e | concept-sync | Reconcile iterated mockup changes back into the concept; set delivery track |
-| 2 | requirements-engineer | Write PRDs, user stories, acceptance criteria, and edge cases; Linear handoff mode for discovery |
+| 2 | requirements-engineer | Write new PRDs in the canonical six-section UC/AC format; Linear handoff mode for discovery |
+| 2a | legacy-prd-migration | Transform existing PRDs into the same format with a full-fidelity mechanical diff; alternative to Step 2 authoring |
 | 2b | handoff-package | Assemble a standalone, zippable handoff package for external UI/UX experts and developers (discovery track) |
 | 2c | review-reconcile | Resolve PRD review gaps point by point; defer engineering items to a developer meeting (discovery track) |
 | 2d | release-scope | Turn a phase that spans several PROJs into an executable slice: feature→US index, exclusions, ranked gaps, forward-compat seams. Runs before architecture, which then runs once at release level rather than once per PROJ |

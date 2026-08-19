@@ -123,17 +123,20 @@ done < "$TMP/citedfiles"
 
 # --------------------------------------------------------- B3 · round-trip
 
-# 2d-release-scope requires the delivering US heading to be quoted verbatim, precisely
-# so a renumbering is detectable. Check each quoted "US-n: Title" against the headings
-# actually present in the packaged PRDs.
-grep -rhoE '^#{2,4} .*US-?[0-9]+[:.] ?[^|]*' "$PKG/projects" --include='*.md' 2>/dev/null \
+# 2d-release-scope requires the delivering UC or legacy US heading to be quoted
+# verbatim, precisely so a renumbering is detectable.
+grep -rhoE '^### UC-[a-z0-9-]+-[0-9]{2} — [^|]*|^#{2,4} .*US-?[0-9]+[:.] ?[^|]*' "$PKG/projects" --include='*.md' 2>/dev/null \
   | sed -E 's/^#+ +//' | sort -u > "$TMP/realheadings" || true
-grep -ohE '`P?[0-9]*-?US-?[0-9]+: [^`]+`' "$SCOPE" | tr -d '`' | sort -u > "$TMP/quoted" || true
+grep -ohE '`(UC-[a-z0-9-]+-[0-9]{2} — [^`]+|P?[0-9]*-?US-?[0-9]+: [^`]+)`' "$SCOPE" | tr -d '`' | sort -u > "$TMP/quoted" || true
 QUOTED_N="$(wc -l < "$TMP/quoted" | tr -d ' ')"
 while IFS= read -r Q; do
   [ -z "$Q" ] && continue
-  TITLE="$(printf '%s' "$Q" | sed -E 's/^[^:]*: *//')"
-  grep -qiF "$TITLE" "$TMP/realheadings" && continue
+  if printf '%s' "$Q" | grep -q '^UC-'; then
+    grep -qiF "$Q" "$TMP/realheadings" && continue
+  else
+    TITLE="$(printf '%s' "$Q" | sed -E 's/^[^:]*: *//')"
+    grep -qiF "$TITLE" "$TMP/realheadings" && continue
+  fi
   # An elided quote ("US-1: …I join one shared zone queue…") cannot be round-tripped
   # by construction. That is a defect in the scope index, not in the package: the
   # verbatim heading is the redundant join key that makes a renumbering detectable,

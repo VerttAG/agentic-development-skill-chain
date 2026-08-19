@@ -38,7 +38,7 @@ Not every gap is the product owner's to decide. Some require engineering input (
 
 ## Decomposed PROJ Handling
 
-Work one PROJ at a time. A review usually targets one PROJ's PRDs. If the review touches a sibling PROJ's scope, do not pull that scope in here — record it as a cross-PROJ dependency or `Future Scope` note and keep this PROJ's decisions local.
+Work one PROJ at a time. A review usually targets one PROJ's PRDs. If the review touches a sibling PROJ's scope, do not pull that scope in here — keep the constraint in this PRD's `Assumptions`, or use a blocking question when this PRD genuinely waits on it.
 
 ## Input
 
@@ -82,7 +82,7 @@ For every decided item, identify which layers must change, and note it in the re
 
 | Layer | Change |
 |---|---|
-| PRD | exact user story / line and the new wording |
+| PRD | exact UC/AC or legacy story line and the new wording |
 | Concept | scope/behavior update, or "n/a" |
 | Mockup | the screen + wording/mechanism, or "n/a" / "already correct" |
 
@@ -92,7 +92,7 @@ This makes the blast radius explicit before editing and often reveals that a moc
 
 Apply only **decided** items (deferred ones change nothing yet):
 
-- **PRDs are binding** — make the agreed edits precisely; align any contradicting lines (rules, open-decisions registers) in the same pass.
+- **PRDs are binding** — make the agreed edits precisely; align any contradicting lines in the same pass. For a v2 PRD, read `../2-requirements-engineer/references/prd-format.md`, preserve its six-section grammar, and rerun its completion gate after editing.
 - **Concept** — if one exists, reconcile scope/behavior changes (do not invent a concept if none exists; note that the future concept should carry the decision).
 - **Mockups are wireframe / workflow references, not the binding design.** Change a mockup only where it now *contradicts* the decided PRD. Do not invent screens or fake elements to "demonstrate" a rule; prefer encoding the mechanism plus a documented note. Log every mockup change in `1d_mockups/iteration-log.md` (one entry per review round), classified scope / behavior / presentation-only.
 
@@ -141,6 +141,7 @@ Confirm before finalizing. Update each decided entry's status to `Decided and ap
 - [ ] Deferred items captured on the `Developer Meeting Agenda`, not force-decided
 - [ ] Each decided item mapped across PRD / concept / mockup layers
 - [ ] PRD edits applied; contradicting canonical lines aligned in the same pass
+- [ ] Every edited v2 PRD still passes the canonical format completion gate
 - [ ] Mockup changes limited to real contradictions; logged in `iteration-log.md`
 - [ ] `review-changelog.md` updated for this round (handoff-facing)
 - [ ] No existing `2b_handoff/` package run edited

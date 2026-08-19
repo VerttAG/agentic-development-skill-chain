@@ -61,7 +61,7 @@ Detection: for each PROJ, look at US ID prefixes, PRD filenames, and manifest co
 
 Also record the phase-marker vocabulary actually in use across the manifests (`P1→`, `P1/P2/P5`, `P1 seed → P2 full`, `NOT MVP`, `out of MVP`, prose-only, none). It is usually inconsistent. Record it; do not normalize it in this run.
 
-### 3. Resolve Each In-Phase Feature To User Stories
+### 3. Resolve Each In-Phase Feature To Use Cases
 
 For each feature ID in the target phase:
 
@@ -70,13 +70,17 @@ For each feature ID in the target phase:
 3. Read the candidate stories and confirm they actually deliver the feature rather than merely mentioning it.
 4. Classify: **SPEC'D** (a phase-scoped story exists) · **PARTIAL** (a story exists but carries later-phase content, or only one side of the feature is specified) · **GAP** (no story anywhere) · **POLICY** (decided, requires no build).
 
-**Quote the US heading verbatim.** US IDs are not stable under review rounds; the heading text is what lets a reader confirm the row survived a renumbering.
+**Quote the v2 UC heading verbatim.** For a legacy PRD, quote its US heading
+verbatim instead. IDs can move during review; the full heading text is the
+redundant join key that lets a reader confirm the row survived a renumbering.
 
 Watch for features split across PROJs — one owning the data, another the surface. Both halves get listed, and the row is PARTIAL if only one is specified.
 
 ### 4. Build The Exclusion List
 
-For every PRD that contributes to the release, identify the stories in it that are **not** in the release, and say which phase they belong to and why.
+For every PRD that contributes to the release, identify the use cases (or
+legacy stories) in it that are **not** in the release, and say which phase
+they belong to and why.
 
 Three shapes, in ascending order of how easily they are missed:
 
@@ -151,7 +155,7 @@ Report the verification results with the deliverable, including anything that di
 
 ## Re-Running On A Later Release Or After PRD Revisions
 
-Idempotent and diff-oriented. On re-run, report what changed since the last one — a PRD revision that moved or renumbered a story, a new feature ID, a gap that closed, an exclusion that became an inclusion — and append a dated line to the release changelog. Staleness, not inaccuracy, is the failure mode of any hand-built index; **US IDs are the join key and they are not stable under review rounds**, so a re-run after any `review-reconcile` round on a participating PROJ is the norm, not an exception.
+Idempotent and diff-oriented. On re-run, report what changed since the last one — a PRD revision that moved or renumbered a use case, a new feature ID, a gap that closed, an exclusion that became an inclusion — and append a dated line to the release changelog. Staleness, not inaccuracy, is the failure mode of any hand-built index; **UC IDs (or legacy US IDs) are join keys and are not stable under review rounds**, so a re-run after any `review-reconcile` round on a participating PROJ is the norm, not an exception.
 
 ## Handoff
 
@@ -164,7 +168,7 @@ Idempotent and diff-oriented. On re-run, report what changed since the last one 
 
 - [ ] Inventory parsed; internal drift between rows and rollup resolved with the user
 - [ ] Phase-vocabulary collisions detected and warned about at the top of the index, with concrete proof
-- [ ] Every in-phase feature ID resolved to US IDs or classified GAP, with headings quoted verbatim
+- [ ] Every in-phase feature ID resolved to UC IDs (or legacy US IDs) or classified GAP, with headings quoted verbatim
 - [ ] Exclusions listed, including part-of-a-story splits with their specific ACs named
 - [ ] Dependency closure identified (PRDs no feature ID points at)
 - [ ] Forward-compat obligations harvested, sourced with file + line, and indexed

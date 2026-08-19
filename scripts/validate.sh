@@ -21,6 +21,7 @@ CORE_SKILLS=(
   1d-ui-mockup
   1e-concept-sync
   2-requirements-engineer
+  2a-legacy-prd-migration
   2b-handoff-package
   2c-review-reconcile
   2d-release-scope

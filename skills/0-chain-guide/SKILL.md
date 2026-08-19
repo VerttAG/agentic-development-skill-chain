@@ -23,7 +23,8 @@ Step  Skill                  Output
                              delivery + design-conformance.md + design-source.md
  1d   ui-mockup (UI req.)    specs/PROJ-<X>-<theme>/1d_mockups/sitemap.html + mockups + implementation-handoff.md + iteration-log.md
  1e   concept-sync (opt)     reconciled 1_brainstorm/PROJ-<X>-concept.md (Concept Sync Log + Handoff Readiness)
-  2   requirements-engineer  specs/PROJ-<X>-<theme>/2_PRDs/PROJ-<X>-PRD-<Y>-<desc>.md
+  2   requirements-engineer  specs/PROJ-<X>-<theme>/2_PRDs/PRD-<Y>-<desc>.md
+ 2a   legacy-prd-migration   the same v2 PRD artifact, transformed from an existing PRD
  2b   handoff-package (opt)  specs/PROJ-<X>-<theme>/2b_handoff/YYYY-MM-DD-handoff*/ standalone package (+ zip) — discovery track only
  2c   review-reconcile (opt) specs/PROJ-<X>-<theme>/2_PRDs/<prd>-review-decisions.md + review-changelog.md — resolve PRD review gaps
  2d   release-scope (opt)    specs/_releases/R<N>-<theme>/R<N>-scope.md + R<N>-gaps.md + R<N>-forward-compat.md — cross-PROJ, phased roadmaps only
@@ -33,14 +34,15 @@ Step  Skill                  Output
  4a   checkpoint (CP1)       specs/PROJ-<X>-<theme>/decisions.md + state.json sealed CP1:approved
  4b   setup (P0)             proj/PROJ-<X> branch, preflight block in state.json, framework scripts in scripts/
   5   executing              implements code + tests + specs/PROJ-<X>-<theme>/5_progress/PROJ-<X>-progress.md
-  6   qa                     appends QA Test Results to each PRD file (+ ledger records in findings.json)
+  6   qa                     writes 5_progress/<PRD-ID>-qa-results.md (+ ledger records in findings.json)
   7   documentation          creates/updates docs/PROJECT.md
   8   delivery (P8)          PR via gh with rendered body, CI green, CP2 comment reconcile
 ```
 
 **Reading the numbers.** A bare number is a main-line step. A letter suffix
 is a variant at the same stage — `1b`–`1e` run in sequence inside the UI
-branch, `2b`/`2c`/`2d`/`2e` are optional forks, `0a`/`0b`/`0c` are alternative entry
+branch, `2a` is the existing-PRD alternative to authoring Step 2,
+`2b`/`2c`/`2d`/`2e` are optional forks, `0a`/`0b`/`0c` are alternative entry
 paths (0a+0c for a new build, 0b for an existing codebase), and `4a`/`4b`
 are mandatory despite the letter. A skill with no number is not a step at
 all: `cross-review` is a mechanism invoked inside P7, never routed to
@@ -157,7 +159,7 @@ Scan `specs/PROJ-*/` folders to find the latest PROJ. For each PROJ, check:
    - `1d_mockups/iteration-log.md` with any entry marked `Affects concept: yes` **and** the concept has no `Concept Sync Log` entry covering that iteration → concept drifted, recommend `concept-sync` (1e) before requirements.
    - **Design-derived drift is invisible in the log when nobody recorded it.** If `1c_design/design-source.md` exists and its accepted version stamp is newer than the version named in the concept's last `Concept Sync Log` entry, recommend `concept-sync` (1e) **regardless of whether the iteration log has entries** — and say the log looks unmaintained. An empty log beside a moved design reads as "no drift" to every other rule here, which is the one case where silence is the finding.
    - Concept contains `Concept Sync Log` / `Handoff Readiness` → step 1e done.
-6. `2_PRDs/PROJ-<X>-PRD-*.md` — at least one PRD? → step 2 done. If `Handoff Readiness` is `discovery (Linear handoff)`, this PROJ is on the discovery track and is **complete at step 2** — do not recommend architecture. Optionally suggest `handoff-package` (2b) for an external standalone deliverable.
+6. `2_PRDs/PRD-*.md` (or legacy `PROJ-<X>-PRD-*.md`) — at least one PRD? → step 2 done. If an existing PRD lacks the schema header and canonical six H2s and the user wants the current format, recommend `legacy-prd-migration` (2a) before architecture. If `Handoff Readiness` is `discovery (Linear handoff)`, this PROJ is on the discovery track and is **complete at step 2** — do not recommend architecture. Optionally suggest `handoff-package` (2b) for an external standalone deliverable.
    - `2b_handoff/*/README.md` exists → step 2b done; the latest dated handoff package is assembled.
 6b. **Cross-PROJ release check.** If a phase-tagged feature inventory exists (for example `specs/_drafts/*inventory*.md`, `specs/_platform-baseline/*inventory*.md`, or a `*triage*.md` with a phase or wave column), its current phase spans more than one PROJ, and `specs/_releases/` has no folder for that phase → recommend `release-scope` (2d) before architecture. `specs/_releases/R<N>-*/R<N>-scope.md` exists → step 2d done. Skip this check when only one PROJ is involved; its PRD manifest already covers that case.
 
@@ -301,7 +303,7 @@ If the user asks "what does each step do?":
 | 4a | checkpoint | Human checkpoints as structured reconcile loops: CP1 (arch + plans → decision log → seal state.json) and CP2 (PR comments, via delivery) |
 | 4b | setup | P0 once per PROJ: branch + BASE_SHA, tool/auth preflight, framework scripts into the repo, state.json extended |
 | 5 | executing | Implement wave by wave with TDD, using UI handoff constraints where relevant |
-| 6 | qa | End-to-end test all PRDs, security audit, QA Results appended per PRD; read-only finder in framework runs (P6 controller fixes) |
+| 6 | qa | End-to-end test all PRDs, security audit, separate per-PRD QA evidence; read-only finder in framework runs (P6 controller fixes) |
 | 7 | documentation | Conditionally update README.md, docs/PROJECT.md, docs/TECHNICAL.md; merge approved AGENTS.md candidates (≤40 lines) |
 | 8 | delivery | Conflict probe, PR with rendered body, CI fix loop (max 3), Checkpoint 2 comment reconcile |
 

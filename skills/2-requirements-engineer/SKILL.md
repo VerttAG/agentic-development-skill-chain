@@ -1,6 +1,6 @@
 ---
 name: 2-requirements-engineer
-description: "Write feature PRDs with user stories, acceptance criteria and edge cases from an approved concept and optional mockups. Not for UI mockups, technical design, writing code, or debugging."
+description: "Write new six-section PRDs with use cases, acceptance criteria, assumptions, vocabulary and open questions from an approved concept. Not for legacy PRD migration, UI mockups, architecture, code, or debugging."
 license: MIT
 ---
 
@@ -13,7 +13,7 @@ Never write code or technical architecture in this skill. Architecture and imple
 ## PROJ vs. PRD
 
 - **PROJ-X** is the initiative or feature theme, for example `PROJ-1-auth`. Brainstorming assigns it and creates the folder.
-- **PRD-Y** is one testable, deployable feature inside the PROJ. Number PRDs from 1 within each PROJ.
+- **PRD-Y** is one testable, deployable feature inside the PROJ. Number PRDs from 1 within each PROJ and use `PRD-<Y>-<slug>` as the file stem and declared PRD ID.
 
 ## Feature Granularity
 
@@ -30,9 +30,9 @@ Prefer several focused files inside the same PROJ over one large PRD:
 
 ```text
 specs/PROJ-1-auth/2_PRDs/
-  PROJ-1-PRD-1-user-signup.md
-  PROJ-1-PRD-2-login.md
-  PROJ-1-PRD-3-password-reset.md
+  PRD-1-user-signup.md
+  PRD-2-login.md
+  PRD-3-password-reset.md
 ```
 
 Document dependencies between PRDs, including cross-PROJ dependencies, inside each PRD.
@@ -41,10 +41,10 @@ Document dependencies between PRDs, including cross-PROJ dependencies, inside ea
 
 Detect how this PROJ will be delivered before writing PRDs. The concept's `Handoff Readiness` section (written by `concept-sync`) sets `Delivery track`; if it is absent, infer from context and confirm with the user.
 
-- **Full chain (in-repo build):** Steps 3–7 follow in this repo. Write PRDs normally, including the `UI Implementation Notes` section with component reuse and file-path hints.
+- **Full chain (in-repo build):** Steps 3–7 follow in this repo. Write PRDs in the canonical format. Keep component reuse, file paths, and implementation detail in `implementation-handoff.md`, architecture, and wave plans; the PRD contains observable product behaviour only.
 - **Discovery / Linear handoff:** There is no codebase here. You are producing a developer handoff that goes to Linear (https://linear.app). The developer who picks it up owns architecture and implementation. In this mode:
-  - Write the same PRDs (user stories, acceptance criteria, edge cases) — these are the contract.
-  - Do **not** invent in-repo file paths or component locations. Replace `UI Implementation Notes` component-path hints with mockup references and design intent only.
+  - Write the same PRDs (use cases and acceptance criteria) — these are the contract.
+  - Do **not** invent in-repo file paths, component locations, or implementation mechanisms.
   - Do **not** recommend `architecture` (3); the chain stops at Step 2 for this PROJ.
 
 ## Decomposed PROJ Handling
@@ -52,9 +52,11 @@ Detect how this PROJ will be delivered before writing PRDs. The concept's `Hando
 Requirements run one PROJ at a time. If the concept contains `Decomposition Context`:
 
 - Write PRDs only for the current PROJ.
-- Do not absorb sibling PROJ scope into user stories.
-- Document cross-PROJ dependencies explicitly under `## Dependencies`.
-- If a sibling PROJ is a blocker, do not write stories that assume its behavior except as a dependency or precondition.
+- Do not absorb sibling PROJ scope into use cases.
+- Preserve cross-PROJ constraints in `Assumptions`; when a sibling's unresolved
+  behaviour blocks a UC, represent it as an `Open questions` item referenced by
+  that UC rather than adding a `Dependencies` section.
+- If a sibling PROJ is a blocker, do not write use cases that assume its behavior except as an explicit blocker or precondition.
 - A shared design language from a sibling PROJ may be referenced, but it does not expand the current product scope.
 
 ## Input
@@ -89,7 +91,7 @@ Stop only if the handoff itself is missing, or if its `Screens NOT covered` list
 
 Before creating a PRD, inspect `specs/PROJ-<X>-<theme>/2_PRDs/`.
 
-Use the next available `PRD-Y` number inside the PROJ, starting at 1 and avoiding gaps where practical. Do not duplicate existing PRDs.
+Use the next available `PRD-Y` number inside the PROJ, starting at 1 and avoiding gaps where practical. Inspect both current `PRD-<Y>-*.md` names and legacy `PROJ-<X>-PRD-<Y>-*.md` names before choosing it. Do not duplicate existing PRDs.
 
 ### 2. Understand The Feature
 
@@ -106,7 +108,7 @@ For UI features, read mockups and sitemap first:
 
 In design-derived mode you cannot see the screens — the design lives in a tool, and you receive names, structure and numbers rather than the picture. Read the sitemap for what exists and the handoff for what it does, and **ask rather than infer** where a behaviour is only visible in the design. An inferred behaviour and an observed one are indistinguishable once written as an acceptance criterion.
 
-**Consume the annotation-derived criteria.** When `design-language.md` carries a `## Behaviour Annotations — Candidate Acceptance Criteria` section, `1c-design-intake` put it there because that behaviour was specified in the design tool and reaches no implementation prompt from inside it — validation timing, focus order and return, empty versus filtered-to-zero, status announcements, reduced-motion. Each row is a **candidate**: fold it into the acceptance criteria of the story that owns it, or record why it was dropped. They are not optional colour, and they are not already covered elsewhere; if you leave them in the design language document they will not be built and will not be tested.
+**Consume the annotation-derived criteria.** When `design-language.md` carries a `## Behaviour Annotations — Candidate Acceptance Criteria` section, `1c-design-intake` put it there because that behaviour was specified in the design tool and reaches no implementation prompt from inside it — validation timing, focus order and return, empty versus filtered-to-zero, status announcements, reduced-motion. Each row is a **candidate**: fold it into the acceptance criteria of the use case that owns it, or record why it was dropped. They are not optional colour, and they are not already covered elsewhere; if you leave them in the design language document they will not be built and will not be tested.
 
 Ask the user focused questions only when needed:
 
@@ -129,68 +131,32 @@ Identify and prioritize edge cases:
 
 ### 4. Write PRDs
 
-Save PRDs under:
+Read `references/prd-format.md` completely, then save PRDs under:
 
 ```text
-specs/PROJ-<X>-<theme>/2_PRDs/PROJ-<X>-PRD-<Y>-<short-description>.md
+specs/PROJ-<X>-<theme>/2_PRDs/PRD-<Y>-<short-description>.md
 ```
 
-Use kebab-case for `<short-description>`.
+Use kebab-case for `<short-description>`. The filename stem, declared PRD ID,
+and UC/AC/Q slug must agree.
 
-Template:
+The reference is the canonical grammar; do not copy or improvise a second
+template here. In particular:
 
-```markdown
-# PROJ-<X>-PRD-<Y>: Feature Name
+- write exactly its six H2 sections, in order;
+- map every product rule and edge case to the one use case that owns it;
+- keep implementation notes in their source handoff rather than adding a PRD section;
+- use questions only for unresolved decisions that block a use case;
+- run the reference's mechanical completion gate before review.
 
-## Status: Planned
-
-## User Stories
-
-### US-1: As a [user type], I want [action] so that [goal]
-**Given** [starting condition]
-**When** [action]
-**Then** [expected result]
-**And** [additional expected result, if needed]
-
-**Acceptance Criteria:**
-- [ ] AC-1: Testable criterion derived from the Then/And clauses
-- [ ] AC-2: Another testable criterion for this story
-
-### US-2: As a [user type], I want ...
-**Given** ...
-**When** ...
-**Then** ...
-
-**Acceptance Criteria:**
-- [ ] AC-3: ...
-
-## Edge Cases
-- What happens when...?
-
-## Dependencies
-- Requires: PROJ-<X>-PRD-<Y>
-- Cross-PROJ dependency: PROJ-<A>-PRD-<B>
-
-## Technical Requirements
-- Performance, security, compatibility, or operational constraints.
-
-## UI Implementation Notes
-- Project mode:
-- Reuse:
-- New component candidates:
-- Design tokens:
-- Interaction contract:
-- Implementation tolerance:
-- Design source (design-derived only): <accepted version stamp · node link>
-```
-
-Each user story owns its own acceptance criteria. Do not create one global acceptance-criteria section. Derive ACs directly from the story's Given/When/Then/And clauses and make them testable.
+Each use case owns its own acceptance criteria. Do not create a global AC
+section or represent AC state with Markdown checkboxes.
 
 ### 5. Review With The User
 
 Ask the user to review the PRDs. If changes are requested, update the PRDs and present them again.
 
-Also ask the user to review the PRD artifacts with a different model before approval, for example GPT reviewing Claude output or Claude reviewing GPT output. This second-model review should focus on missing user stories, weak acceptance criteria, ambiguous edge cases, and scope drift.
+Also ask the user to review the PRD artifacts with a different model before approval, for example GPT reviewing Claude output or Claude reviewing GPT output. This second-model review should focus on missing use cases, weak acceptance criteria, ambiguous edge cases, and scope drift.
 
 ### 6. Handoff
 
@@ -203,10 +169,13 @@ Also ask the user to review the PRD artifacts with a different model before appr
 - [ ] Necessary user questions answered
 - [ ] UI mockups and sitemap read for UI features
 - [ ] `implementation-handoff.md` read for UI features
-- [ ] Design-derived only: the stop rule was not applied, every `## Behaviour Annotations` row was folded into a story's acceptance criteria or explicitly dropped with a reason, and in-scope screens the design does not cover were routed back to the designer
-- [ ] At least 3-5 user stories defined where feature size warrants it
-- [ ] Every user story has its own acceptance criteria
+- [ ] Design-derived only: the stop rule was not applied, every `## Behaviour Annotations` row was folded into a use case's acceptance criteria or explicitly dropped with a reason, and in-scope screens the design does not cover were routed back to the designer
+- [ ] `references/prd-format.md` read and its mechanical completion gate passed
+- [ ] At least 3-5 use cases defined where feature size warrants it
+- [ ] Every use case has its own acceptance criteria
 - [ ] At least 3-5 edge cases documented where feature size warrants it
+- [ ] Edge cases and cross-cutting rules live under one owning use case
+- [ ] No extra H2, task-list AC, unresolved reference, or implementation section
 - [ ] PRD ID assigned and file saved in the correct folder
 - [ ] Delivery track determined (full chain vs. discovery / Linear handoff)
 - [ ] User reviewed and approved the PRD
@@ -214,7 +183,7 @@ Also ask the user to review the PRD artifacts with a different model before appr
 ## Git Commit Format
 
 ```text
-feat(PROJ-<X>-PRD-<Y>): Add PRD for <feature-name>
+feat(PROJ-<X>-PRD-<Y>): add PRD for <feature-name>
 ```
 
 Git is optional on the discovery track. If the workspace is not a git repository, skip the commit; the PRD files are the durable artifacts.

@@ -11,7 +11,8 @@ This document is the expanded process reference for `chain-guide`. The executabl
 1c  frontend-design          Define or extend the design language when needed
 1c  design-intake            Extract an external designer's delivery instead — run one 1c, not both
 1d  ui-mockup                Create sitemap, mockups, and UI implementation handoff
-2   requirements-engineer    Write PRDs, user stories, acceptance criteria, and edge cases
+2   requirements-engineer    Write new v2 PRDs with use cases and acceptance criteria
+2a  legacy-prd-migration     Transform existing PRDs into the same v2 format
 3   architecture             Produce PROJ-level technical architecture
 4   writing-plans            Split implementation into waves
 5   executing                Implement waves with TDD and quality gates
@@ -57,7 +58,8 @@ together. Product-level artifacts live outside the PROJ folder —
 | 1c | `design-intake` | External designer delivered the system | the same `1c_design/design-language.md`, plus `design-conformance.md` and `design-source.md` |
 | 1d | `ui-mockup` | UI only | `1d_mockups/sitemap.html`, screen mockups, `implementation-handoff.md` |
 | 1e | `concept-sync` | After mockup iterations | reconciled `1_brainstorm/PROJ-<X>-concept.md` |
-| 2 | `requirements-engineer` | Required | `2_PRDs/PROJ-<X>-PRD-<Y>-*.md` |
+| 2 | `requirements-engineer` | Required | `2_PRDs/PRD-<Y>-*.md` |
+| 2a | `legacy-prd-migration` | Existing PRDs need the v2 format | `2_PRDs/PRD-<Y>-*.md` |
 | 2b | `handoff-package` | External handoff | `2b_handoff/YYYY-MM-DD-handoff*/` |
 | 2c | `review-reconcile` | PRD review returned gaps | `2_PRDs/*-review-decisions.md`, `review-changelog.md` |
 | 2d | `release-scope` | A roadmap phase spans several PROJs | `specs/_releases/R<N>-<theme>/` — scope index, gaps, forward-compat register |
@@ -67,7 +69,7 @@ together. Product-level artifacts live outside the PROJ folder —
 | 4a | `checkpoint` | Required | `decisions.md`, `state.json` sealed `CP1:approved` |
 | 4b | `setup` | Required | PROJ branch, preflight, framework scripts, context bundles |
 | 5 | `executing` | Required | Code, tests, `5_progress/PROJ-<X>-progress.md` |
-| 6 | `qa` | Required before release | QA results appended to PRDs/progress |
+| 6 | `qa` | Required before release | `5_progress/<PRD-ID>-qa-results.md` plus progress summary |
 | 7 | `documentation` | Required before closeout | `docs/PROJECT.md` and related docs |
 | 8 | `delivery` | Required to ship | PR with rendered body, CI green, CP2 reconcile |
 

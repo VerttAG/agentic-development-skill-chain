@@ -327,7 +327,11 @@ Persona retrospectives are **advisory**. Persona bug findings are normal QA find
 
 ### 7. Document Results
 
-For each PRD tested: append a `## QA Test Results` section to that PRD file (`specs/PROJ-<X>-<theme>/2_PRDs/PROJ-<X>-PRD-<Y>-<desc>.md`) using `references/test-template.md` as the format.
+For each PRD tested, write or update a separate
+`specs/PROJ-<X>-<theme>/5_progress/<PRD-ID>-qa-results.md` using
+`references/test-template.md`. Never append QA sections to a PRD: the v2 PRD
+grammar permits exactly six H2 sections, and QA evidence is an execution
+artifact rather than a product requirement.
 
 Also update `specs/PROJ-<X>-<theme>/5_progress/PROJ-<X>-progress.md` with a top-level QA summary across all PRDs.
 

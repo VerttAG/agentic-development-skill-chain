@@ -157,7 +157,7 @@ buries the real findings under noise.
 | A3 | at least one PRD, in either folder layout |
 | A4 | PRD manifest exists |
 | A5 | no superseded PRD directory inside the live PRD folder — a failure if the manifest does not name it, a warning if it does. Naming it makes it documented, not absent: a glob over the PRD folder still reads a contradictory model |
-| A6 | every PRD carries a user-story heading — accept both `US-1` and `P1-US1`, because both conventions occur. Requiring one reports a fully specified set as empty |
+| A6 | every PRD carries a v2 `UC-*` heading or a legacy user-story heading (`US-1` / `P1-US1`) |
 | A7 | handoff freshness — PRDs committed after the newest handoff run |
 
 ### Layer B — release self-containment
@@ -169,7 +169,7 @@ targeting failures that have actually occurred in live slices.
 |---|---|
 | B1 | **Completeness** — every feature ID accounted for exactly once |
 | B2 | **Resolvability** — every cited PRD file exists inside the package |
-| B3 | **Round-trip** — every quoted user-story heading appears verbatim in a packaged PRD. An *abbreviated* quote (`US-1: …I join one shared zone queue…`) cannot round-trip by construction; report it, because the verbatim heading is the redundant join key that makes a renumbering detectable and an ellipsis throws it away |
+| B3 | **Round-trip** — every quoted UC or legacy user-story heading appears verbatim in a packaged PRD. An abbreviated quote cannot round-trip by construction; report it, because the verbatim heading is the redundant join key that makes a renumbering detectable |
 | B4 | **Leakage** — nothing both in-scope and excluded, unless the in-scope row is marked PARTIAL with its specific ACs named |
 | B5 | **Gap honesty** — every GAP row names what exists instead |
 | B6 | **Dangling references** — every `PROJ-<X>-PRD-<N>` resolves to a packaged PRD or a known out-of-slice PROJ |
